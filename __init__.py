@@ -61,8 +61,9 @@ if module == "connectionBD":
 
         cursor = conn.cursor()
 
-    except:
+    except Exception as e:
         PrintException()
+        raise e
 
 if module == 'QueryBD':
 
@@ -102,5 +103,6 @@ if module == 'QueryBD':
         conn.commit()
         SetVar(var_, data)
 
-    except:
+    except Exception as e:
         PrintException()
+        raise e

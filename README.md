@@ -5,6 +5,11 @@ Module for connection to SQL Server DB
 
 ![alt text](https://raw.githubusercontent.com/rocketbot-cl/SQLServer/master/example/SQLServer.png)
 
+<strong>Video Example:</strong>
+
+[![SQL SERVER](https://img.youtube.com/vi/DK20nsXWzW4/0.jpg)](https://www.youtube.com/watch?v=DK20nsXWzW4 "SQL SERVER")
+
+
 <h2>Dependencies</h2>
 <p>
   <ul>

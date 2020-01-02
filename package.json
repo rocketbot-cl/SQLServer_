@@ -89,9 +89,9 @@
                     {
                         "type": "input",
                         "placeholder": {
-                            "es": "variable",
-                            "en": "Path",
-                            "cn": "Path"
+                            "es": "****",
+                            "en": "****",
+                            "cn": "****"
                         },
                         "title": {
                             "es": "Contraseña de BD",

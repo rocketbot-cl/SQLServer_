@@ -43,7 +43,6 @@ if module == "connectionBD":
     username = GetParams('user')
     password = GetParams('password')
 
-    print(server, database, username, password)
     driver = "{SQL Server}"
     if server.endswith("database.windows.net"):
         driver = '{ODBC Driver 17 for SQL Server}'

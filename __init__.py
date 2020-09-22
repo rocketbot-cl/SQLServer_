@@ -74,7 +74,7 @@ if module == 'QueryBD':
 
         cursor.execute(query)
 
-        if query.lower().startswith('select'):
+        if query.lower().startswith('select') or query.lower().startswith('execute'):
             data = []
 
             # print(query)

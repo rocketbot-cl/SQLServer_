@@ -42,6 +42,7 @@ if module == "connectionBD":
     database = GetParams('database')
     username = GetParams('user')
     password = GetParams('password')
+    result = GetParams('result')
 
     driver = "{SQL Server}"
     if server.endswith("database.windows.net"):
@@ -59,8 +60,12 @@ if module == "connectionBD":
             conn = pyodbc.connect('DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database)
 
         cursor = conn.cursor()
+        if result:
+            SetVar(result, True)
 
     except Exception as e:
+        if result:
+            SetVar(result, False)
         PrintException()
         raise e
 
@@ -73,6 +78,8 @@ if module == 'QueryBD':
     try:
 
         cursor.execute(query)
+        if query.lower().startswith(('call', 'exec')):
+            data = cursor.fetchall()
 
         if query.lower().startswith('select') or query.lower().startswith('execute'):
             data = []
@@ -89,6 +96,7 @@ if module == 'QueryBD':
                 for r in row:
                     ob_[columns[t]] = str(r) + ""
                     t = t + 1
+
                 data.append(ob_)
 
         # elif query.lower().startswith('insert'):

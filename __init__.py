@@ -113,3 +113,7 @@ if module == 'QueryBD':
     except Exception as e:
         PrintException()
         raise e
+
+if module == "close":
+    conn.close()
+    cursor = None

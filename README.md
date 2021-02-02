@@ -3,6 +3,14 @@ Module for connection to SQL Server DB
 
 **In the example robot you must put your own DB information.
 
+## Commands
+<ul>
+  <li>BD SQLServer Connection</li>  
+  <li>Query SQLServer</li>  
+  <li>Close connection</li>
+
+</ul>  
+
 ![alt text](https://raw.githubusercontent.com/rocketbot-cl/SQLServer/master/example/SQLServer.png)
 
 <strong>Video Example:</strong>

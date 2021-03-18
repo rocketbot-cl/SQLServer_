@@ -19,15 +19,32 @@ Para obtener la Opcion seleccionada:
 
 
 Para instalar librerias se debe ingresar por terminal a la carpeta "libs"
-    
+
     pip install <package> -t .
 
 """
+import os
+import sys
 import pyodbc
+import pandas as pd
+import urllib
 
-global cursor
-global conn
+base_path = tmp_global_obj["basepath"]
+cur_path = base_path + 'modules' + os.sep + 'SQLServer_' + os.sep + 'libs' + os.sep
+if cur_path not in sys.path:
+    sys.path.append(cur_path)
+from sqlalchemy import create_engine
 
+# Globals declared here
+global mod_sqlserver_sessions
+# Default declared here
+SESSION_DEFAULT = "default"
+# Initialize settings for the module here
+try:
+    if not mod_sqlserver_sessions:
+        mod_sqlserver_sessions = {SESSION_DEFAULT: {}}
+except NameError:
+    mod_sqlserver_sessions = {SESSION_DEFAULT: {}}
 """
     Obtengo el modulo que fue invocado
 """
@@ -36,57 +53,68 @@ module = GetParams("module")
 """
     Obtengo variables
 """
-if module == "connectionBD":
+try:
+    if module == "connectionBD":
 
-    server = GetParams('server')
-    database = GetParams('database')
-    username = GetParams('user')
-    password = GetParams('password')
-    result = GetParams('result')
+        server = GetParams('server')
+        database = GetParams('database')
+        username = GetParams('user')
+        password = GetParams('password')
+        session = GetParams('session')
 
-    driver = "{SQL Server}"
-    if server.endswith("database.windows.net"):
-        driver = '{ODBC Driver 17 for SQL Server}'
-    # print(driver)
-    try:
+        if not session:
+            session = SESSION_DEFAULT
 
+        driver = "{SQL Server}"
+        if server.endswith("database.windows.net"):
+            driver = '{ODBC Driver 17 for SQL Server}'
+
+        connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
         if username and password is not None:
-
-            conn = pyodbc.connect(
-                'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
-
+            connection_string += ';UID=' + username + ';PWD=' + password
+            params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
+                                                                  "SERVER=" + server + ";"
+                                                                                       "DATABASE=" + database + ";"
+                                                                                                                "UID=" + username + ";"
+                                                                                                                                    "PWD=" + password)
         else:
+            params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
+                                                                  "SERVER=" + server + ";"
+                                                                                       "DATABASE=" + database + ";"
+                                                                                                                "Trusted_Connection=yes")
 
-            conn = pyodbc.connect('DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database)
-
+        conn = pyodbc.connect(connection_string)
         cursor = conn.cursor()
-        if result:
-            SetVar(result, True)
 
-    except Exception as e:
-        if result:
-            SetVar(result, False)
-        PrintException()
-        raise e
+        mod_sqlserver_sessions[session] = {
+            "connection": conn,
+            "cursor": cursor,
+            "engine": None
+        }
 
-if module == 'QueryBD':
+        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
+        mod_sqlserver_sessions[session]["engine"] = engine
 
-    query = GetParams('query')
-    var_ = GetParams('var')
-    data = False
+    if module == 'QueryBD':
+        session = GetParams('session')
+        query = GetParams('query')
+        var_ = GetParams('var')
+        data = False
 
-    try:
+        if not session:
+            session = SESSION_DEFAULT
 
+        cursor = mod_sqlserver_sessions[session]["cursor"]
+        conn = mod_sqlserver_sessions[session]["connection"]
         cursor.execute(query)
-        if query.lower().startswith(('call', 'exec')):
-            data = cursor.fetchall()
 
-        if query.lower().startswith('select') or query.lower().startswith('execute'):
+        if query.lower().startswith('select'):
             data = []
 
             # print(query)
 
             columns = [column[0] for column in cursor.description]
+            # print(columns)
             # data.append(columns)
 
             for row in cursor:
@@ -96,12 +124,11 @@ if module == 'QueryBD':
                 for r in row:
                     ob_[columns[t]] = str(r) + ""
                     t = t + 1
-
                 data.append(ob_)
 
-        # elif query.lower().startswith('insert'):
-        #     data = cursor.rowcount, 'registro insertado'
-        #     #data = True
+        elif query.lower().startswith('insert'):
+            data = cursor.rowcount, 'registro insertado'
+            # data = True
 
         else:
             conn.commit()
@@ -110,10 +137,75 @@ if module == 'QueryBD':
         conn.commit()
         SetVar(var_, data)
 
-    except Exception as e:
-        PrintException()
-        raise e
+    if module == 'ExportData':
+        from openpyxl import Workbook
 
-if module == "close":
-    conn.close()
-    cursor = None
+        session = GetParams('session')
+        query = GetParams('query')
+        path_file = GetParams('path_file')
+        data = False
+
+        if not session:
+            session = SESSION_DEFAULT
+
+        cursor = mod_sqlserver_sessions[session]["cursor"]
+        conn = mod_sqlserver_sessions[session]["connection"]
+
+        if query.lower().startswith('select'):
+
+            cursor.execute(query)
+
+            data = []
+
+            columns = [column[0] for column in cursor.description]
+            data.append(columns)
+
+            for row in cursor:
+                ob_ = {}
+                t = 0
+                registros = list()
+                for r in row:
+                    registros.append(str(r).strip())
+
+                data.append(registros)
+
+            wb = Workbook()
+
+            ws = wb.worksheets[0]
+            for row in data:
+                ws.append(row)
+            wb.save(path_file)
+            wb.close()
+
+    if module == 'importData':
+
+        path_file = GetParams('path_file')
+        hoja = GetParams('hoja')
+        tabla = GetParams('tabla')
+        session = GetParams('session')
+
+        if not session:
+            session = SESSION_DEFAULT
+
+        engine = mod_sqlserver_sessions[session]["engine"]
+
+        if hoja:
+            df = pd.read_excel(path_file, sheet_name=hoja, engine='openpyxl')
+        else:
+            df = pd.read_excel(path_file, engine='openpyxl')
+
+        df.to_sql(tabla, con=engine, if_exists='append', index=False)
+
+    if module == "close":
+        session = GetParams('session')
+        if not session:
+            session = SESSION_DEFAULT
+
+        conn = mod_sqlserver_sessions[session]["connection"]
+        conn.close()
+        mod_sqlserver_sessions[session] = {}
+
+
+except Exception as e:
+    PrintException()
+    raise e

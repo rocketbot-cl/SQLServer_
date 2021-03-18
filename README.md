@@ -7,6 +7,8 @@ Module for connection to SQL Server DB
 <ul>
   <li>BD SQLServer Connection</li>  
   <li>Query SQLServer</li>  
+  <li>Export Data SQLServer</li>  
+  <li>Import Data SQLServer</li>  
   <li>Close connection</li>
 
 </ul>  

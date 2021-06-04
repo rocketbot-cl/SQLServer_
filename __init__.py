@@ -108,13 +108,12 @@ try:
         conn = mod_sqlserver_sessions[session]["connection"]
         cursor.execute(query)
 
-        if query.lower().startswith('select'):
+        if query.lower().startswith('select') or query.lower().startswith('execute'):
             data = []
 
             # print(query)
 
             columns = [column[0] for column in cursor.description]
-            # print(columns)
             # data.append(columns)
 
             for row in cursor:
@@ -125,11 +124,6 @@ try:
                     ob_[columns[t]] = str(r) + ""
                     t = t + 1
                 data.append(ob_)
-
-        elif query.lower().startswith('insert'):
-            data = cursor.rowcount, 'registro insertado'
-            # data = True
-
         else:
             conn.commit()
             data = cursor.rowcount, 'registros afectados'

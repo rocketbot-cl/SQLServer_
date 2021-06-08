@@ -124,19 +124,26 @@ try:
                     ob_[columns[t]] = str(r) + ""
                     t = t + 1
                 data.append(ob_)
+        elif query.lower().startswith('insert'):
+            data = cursor.rowcount, 'registro insertado'
+            # data = True
+
         else:
             conn.commit()
             data = cursor.rowcount, 'registros afectados'
-
         conn.commit()
         SetVar(var_, data)
 
     if module == 'ExportData':
         from openpyxl import Workbook
+        import xlwings as xw
 
         session = GetParams('session')
         query = GetParams('query')
         path_file = GetParams('path_file')
+        cell_name = GetParams('cell_name')
+        sheet_name = GetParams('sheet_name')
+        path_file_base = GetParams('path_file_base')
         data = False
 
         if not session:
@@ -163,13 +170,26 @@ try:
 
                 data.append(registros)
 
-            wb = Workbook()
-
-            ws = wb.worksheets[0]
-            for row in data:
-                ws.append(row)
-            wb.save(path_file)
-            wb.close()
+            if path_file_base:
+                data.pop(0)
+                wb = xw.Book(path_file_base)
+                if sheet_name:
+                    sht  = wb.sheets[sheet_name]
+                else:
+                    sht  = wb.sheets[0]
+                
+                if cell_name:
+                    sht.range(cell_name).value = data
+                else:
+                    sht.range('A2').value = data
+                wb.save(path_file)
+                wb.close()
+            else:
+                wb = xw.Book()
+                sht = wb.sheets[0]
+                sht.range('A1').value = data
+                wb.save(path_file)
+                wb.close()
 
     if module == 'importData':
 

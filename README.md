@@ -1,6 +1,8 @@
 # SQLServer
 Module for connection to SQL Server DB
 
+**On mac, this module only works on systems prior to BigSur
+
 **In the example robot you must put your own DB information.
 
 ## Commands

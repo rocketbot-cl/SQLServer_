@@ -39,6 +39,7 @@ from sqlalchemy import create_engine
 global mod_sqlserver_sessions
 # Default declared here
 SESSION_DEFAULT = "default"
+global sesion
 # Initialize settings for the module here
 try:
     if not mod_sqlserver_sessions:
@@ -89,8 +90,9 @@ try:
         mod_sqlserver_sessions[session] = {
             "connection": conn,
             "cursor": cursor,
-            "engine": None
+            "engine": None,
         }
+        sesion = session
 
         engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
         mod_sqlserver_sessions[session]["engine"] = engine
@@ -133,6 +135,125 @@ try:
             data = cursor.rowcount, 'registros afectados'
         conn.commit()
         SetVar(var_, data)
+
+    if (module == "createSp"):
+
+        session = GetParams('session')
+        spQuery = GetParams("spQuery")
+        spQuery = spQuery.replace("\n", " ")
+        spName = GetParams("spName")
+        query = f"CREATE PROCEDURE dbo.spr{spName} AS BEGIN {spQuery} END"
+
+        if not session:
+            session = SESSION_DEFAULT
+
+        cursor = mod_sqlserver_sessions[session]["cursor"]
+        conn = mod_sqlserver_sessions[session]["connection"]
+        conn.execute(query)
+        conn.commit()
+
+    if (module == "createSpWithVariables"):
+
+        session = GetParams('session')
+        spQuery = GetParams("spQuery")
+        spQuery = spQuery.replace("\n", " ")
+        spName = GetParams("spName")
+        spVariables = GetParams("spVariables")
+
+        query = f"CREATE PROCEDURE dbo.spr{spName} {spVariables} AS BEGIN {spQuery} END"
+
+        if not session:
+            session = SESSION_DEFAULT
+
+        cursor = mod_sqlserver_sessions[session]["cursor"]
+        conn = mod_sqlserver_sessions[session]["connection"]
+        conn.execute(query)
+        conn.commit()
+
+    if (module == "deleteSp"):
+
+        session = GetParams('session')
+        spName = GetParams("spName")
+        query = f"DROP PROCEDURE dbo.spr{spName}"
+
+        if not session:
+            session = SESSION_DEFAULT
+
+        cursor = mod_sqlserver_sessions[session]["cursor"]
+        conn = mod_sqlserver_sessions[session]["connection"]
+        conn.execute(query)
+        conn.commit()
+
+    if (module == "getHtmlSps"):
+
+        print(mod_sqlserver_sessions[sesion])
+
+        session = sesion
+
+        query = "SELECT name FROM sysobjects WHERE TYPE = 'P' AND CATEGORY = 0 AND name LIKE 'spr%'"
+        cursor = mod_sqlserver_sessions[session]["cursor"]
+        conn = mod_sqlserver_sessions[session]["connection"]
+        cursor.execute(query)
+        SpsGot = []
+
+        for i in cursor:
+            SpsGot.append(i[0].replace('spr', ''))
+        
+        SetVar("SQLServer__fake_var", {
+            "spsGot" : SpsGot,
+        })
+        
+
+    if (module == "getSelectSps"):
+        
+        session = GetParams('session')
+        spWanted = GetParams("iframe")
+        spToExecute = eval(spWanted)["spGot"]
+        spVariables = GetParams("spVariables")
+        
+        query = ""
+        
+        if (spVariables != "" and spVariables != None):
+            spVariables = spVariables.replace("\"", "'")
+            query = f"EXEC dbo.spr{spToExecute} {spVariables}"
+        else:
+            query = f"EXEC dbo.spr{spToExecute}"
+
+        if not session:
+            session = SESSION_DEFAULT
+
+        cursor = mod_sqlserver_sessions[session]["cursor"]
+        conn = mod_sqlserver_sessions[session]["connection"]
+        cursor.execute(query)
+        
+        resultData = []
+
+        for i in cursor:
+            resultData.append(i)
+
+        conn.commit()
+        
+        whereToStoreData = GetParams('whereToStoreData')
+        SetVar(whereToStoreData, resultData)
+
+    if (module == "getSps"):
+
+        session = GetParams('session')
+        query = "SELECT name FROM sysobjects WHERE TYPE = 'P' AND CATEGORY = 0 AND name LIKE 'spr%'"
+
+        if not session:
+            session = SESSION_DEFAULT
+
+        cursor = mod_sqlserver_sessions[session]["cursor"]
+        conn = mod_sqlserver_sessions[session]["connection"]
+        cursor.execute(query)
+        resultData = []
+
+        for i in cursor:
+            resultData.append(i[0].replace('spr', ''))
+
+        whereToStoreData = GetParams('whereToStoreData')
+        SetVar(whereToStoreData, resultData)
 
     if module == 'ExportData':
         from openpyxl import Workbook

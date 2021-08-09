@@ -5,6 +5,26 @@ It's necessary to communicate the iframe with the Rocketbot view
 
 */
 
+function dataHandler(e) {
+    console.log('parent received message!:  ', e.data);
+    if (e.data) {
+        if (e.data.input) {
+            $("#input").val(e.data.input);
+        }
+        if (e.data.table) {
+            tabledata = e.data.table
+            table.setData(tabledata)
+        }
+        if (e.data && e.data.spGot) {
+            document.spsGot_spGot = e.data.spGot.toLowerCase()
+        }
+        return 
+    } 
+
+    tabledata = [{ "name": "" }];
+    table.setData(tabledata)
+}
+
 var message = {
     type: 'iframe',
     commands: {}
@@ -12,23 +32,13 @@ var message = {
 var SendMessage = function () {
     parent.postMessage(message, "*");
 }
-$('#spsGot').on('change', function (e) {
-    // e.data.printer
-    message.commands['spGot'] = $(this).val();
-    SendMessage();
-})
+
 var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
 var eventer = window[eventMethod];
 var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
 
 // Listen to message from child window
-eventer(messageEvent, function (e) {
-    console.log('parent received message!:  ', e.data);
-
-    if (e.data && e.data.spGot) {
-        document.spsGot_spGot = e.data.spGot.toLowerCase()
-    }
-});
+eventer(messageEvent, dataHandler);
 
 function getDataFromRB({module_name, command_name}) {
     let api = document.URL.split("module")[0]

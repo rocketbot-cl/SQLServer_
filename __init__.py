@@ -136,23 +136,23 @@ try:
         conn.commit()
         SetVar(var_, data)
 
+    # if (module == "createSp"):
+
+    #     session = GetParams('session')
+    #     spQuery = GetParams("spQuery")
+    #     spQuery = spQuery.replace("\n", " ")
+    #     spName = GetParams("spName")
+    #     query = f"CREATE PROCEDURE dbo.sp{spName} AS BEGIN {spQuery} END"
+
+    #     if not session:
+    #         session = SESSION_DEFAULT
+
+    #     cursor = mod_sqlserver_sessions[session]["cursor"]
+    #     conn = mod_sqlserver_sessions[session]["connection"]
+    #     conn.execute(query)
+    #     conn.commit()
+
     if (module == "createSp"):
-
-        session = GetParams('session')
-        spQuery = GetParams("spQuery")
-        spQuery = spQuery.replace("\n", " ")
-        spName = GetParams("spName")
-        query = f"CREATE PROCEDURE dbo.spr{spName} AS BEGIN {spQuery} END"
-
-        if not session:
-            session = SESSION_DEFAULT
-
-        cursor = mod_sqlserver_sessions[session]["cursor"]
-        conn = mod_sqlserver_sessions[session]["connection"]
-        conn.execute(query)
-        conn.commit()
-
-    if (module == "createSpWithVariables"):
 
         session = GetParams('session')
         spQuery = GetParams("spQuery")
@@ -160,7 +160,7 @@ try:
         spName = GetParams("spName")
         spVariables = GetParams("spVariables")
 
-        query = f"CREATE PROCEDURE dbo.spr{spName} {spVariables} AS BEGIN {spQuery} END"
+        query = f"CREATE PROCEDURE dbo.sp{spName} {spVariables} AS BEGIN {spQuery} END"
 
         if not session:
             session = SESSION_DEFAULT
@@ -190,14 +190,14 @@ try:
 
         session = sesion
 
-        query = "SELECT name FROM sysobjects WHERE TYPE = 'P' AND CATEGORY = 0 AND name LIKE 'spr%'"
+        query = "SELECT name FROM dbo.sysobjects WHERE TYPE = 'P' AND CATEGORY = 0"
         cursor = mod_sqlserver_sessions[session]["cursor"]
         conn = mod_sqlserver_sessions[session]["connection"]
         cursor.execute(query)
         SpsGot = []
 
         for i in cursor:
-            SpsGot.append(i[0].replace('spr', ''))
+            SpsGot.append(i[0].replace('sp', ''))
         
         SetVar("SQLServer__fake_var", {
             "spsGot" : SpsGot,
@@ -207,17 +207,49 @@ try:
     if (module == "getSelectSps"):
         
         session = GetParams('session')
-        spWanted = GetParams("iframe")
-        spToExecute = eval(spWanted)["spGot"]
-        spVariables = GetParams("spVariables")
+        spIframe = GetParams("iframe")
+        tableWithVariables = eval(spIframe)["table"]
+        spToExecute = eval(spIframe)["spGot"]
+        option_ = GetParams("option_")
+        print(option_)
+
+        spVariables = ""
+        spOutput = ""
+        lastOutput = ""
+        # print(tableWithVariables)
+        for value in tableWithVariables:
+            print("dentor del for")
+            print(value)
+            if value["get"] == True:
+                print("if get")
+                # spVariables += "@" + value["name"] + " = " + value["name"] + " OUTPUT, "
+                lastOutput += "@" + value["name"] + " = " + value["name"] + " OUTPUT"
+                spOutput += "@" + value["name"]
+                print(spVariables)
+            else:
+                print("if not get true")
+                spVariables += "@" + value["name"] + " = " + value["value"] + ", "
+                print(spVariables)
+        if spVariables != "":
+            spVariables = spVariables[:-2]
+        print("after spVariables")
+        print(spVariables)
+        if lastOutput:
+            spVariables += f"{lastOutput}"
         
         query = ""
+
+        select2 = ""
+        if not (option_ == "select"):
+            select2 = f"SELECT {spOutput}"
         
-        if (spVariables != "" and spVariables != None):
+        if (spVariables != "" and spVariables != None and select2 != ""):
             spVariables = spVariables.replace("\"", "'")
-            query = f"EXEC dbo.spr{spToExecute} {spVariables}"
+            query = f"DECLARE @return_value int, @new_identity int EXEC @return_value = dbo.sp{spToExecute} {spVariables} {select2}"
         else:
-            query = f"EXEC dbo.spr{spToExecute}"
+            query = f"DECLARE @return_value int, @new_identity int EXEC @return_value = dbo.sp{spToExecute} {spVariables}"
+
+        print(query)
 
         if not session:
             session = SESSION_DEFAULT
@@ -227,9 +259,11 @@ try:
         cursor.execute(query)
         
         resultData = []
-
-        for i in cursor:
-            resultData.append(i)
+        try:
+            for i in cursor:
+                resultData.append(i)
+        except Exception as e:
+            print(e)
 
         conn.commit()
         
@@ -239,7 +273,7 @@ try:
     if (module == "getSps"):
 
         session = GetParams('session')
-        query = "SELECT name FROM sysobjects WHERE TYPE = 'P' AND CATEGORY = 0 AND name LIKE 'spr%'"
+        query = "SELECT name FROM dbo.sysobjects WHERE TYPE = 'P' AND CATEGORY = 0"
 
         if not session:
             session = SESSION_DEFAULT

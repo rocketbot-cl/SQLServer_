@@ -235,7 +235,7 @@ try:
         print("after spVariables")
         print(spVariables)
         if lastOutput:
-            spVariables += f"{lastOutput}"
+            spVariables += f", {lastOutput}"
         
         query = ""
 

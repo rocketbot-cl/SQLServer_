@@ -220,7 +220,10 @@ try:
 
                 if value["type"] == "date":
                     if not isinstance(value["value"], datetime.datetime):
-                        value["value"] = value.strftime('%Y-%m-%d %H:%M:%S')
+                        try:
+                            value["value"] = value.strftime('%Y-%m-%d %H:%M:%S')
+                        except:
+                            pass
                 spVariables += "@" + value["name"] + " = " + value["value"] + ", "
 
             if spVariables != "":

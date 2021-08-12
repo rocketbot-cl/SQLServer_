@@ -1,4 +1,4 @@
-// var tabledata = [{name: "Test", type: "int", get: true, value: 11}];
+var tabledata = [{name: "Test", type: "int", output: true, value: 11}];
 var table = new Tabulator("#example-table", {
     data: tabledata,           //load row data from array
     layout: "fitColumns",      //fit columns to width of table

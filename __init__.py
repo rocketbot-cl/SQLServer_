@@ -77,7 +77,7 @@ try:
                                                                   "SERVER=" + server + ";"
                                                                                        "DATABASE=" + database + ";"
                                                                                                                 "UID=" + username + ";"
-                                                                                                                                    "PWD=" + password)
+                                                                                                                                    "PWD=" + password + "; Trusted_Connection=yes")
         else:
             params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
                                                                   "SERVER=" + server + ";"
@@ -160,7 +160,7 @@ try:
         spName = GetParams("spName")
         spVariables = GetParams("spVariables")
 
-        query = f"CREATE PROCEDURE dbo.sp{spName} {spVariables} AS BEGIN {spQuery} END"
+        query = f"CREATE PROCEDURE dbo.{spName} {spVariables} AS BEGIN {spQuery} END"
 
         if not session:
             session = SESSION_DEFAULT
@@ -174,7 +174,7 @@ try:
 
         session = GetParams('session')
         spName = GetParams("spName")
-        query = f"DROP PROCEDURE dbo.spr{spName}"
+        query = f"DROP PROCEDURE dbo.{spName}"
 
         if not session:
             session = SESSION_DEFAULT
@@ -197,7 +197,7 @@ try:
         SpsGot = []
 
         for i in cursor:
-            SpsGot.append(i[0].replace('sp', ''))
+            SpsGot.append(i[0])
         
         SetVar("SQLServer__fake_var", {
             "spsGot" : SpsGot,
@@ -220,7 +220,9 @@ try:
         for value in tableWithVariables:
             print("dentor del for")
             print(value)
-            if value["get"] == True:
+            if "output" not in value:
+                value["output"] = False
+            if value["output"] == True:
                 print("if get")
                 # spVariables += "@" + value["name"] + " = " + value["name"] + " OUTPUT, "
                 lastOutput += "@" + value["name"] + " = " + value["name"] + " OUTPUT"
@@ -241,7 +243,7 @@ try:
 
         select2 = ""
         if not (option_ == "select"):
-            select2 = f"SELECT {spOutput}"
+            select2 = f"SELECT @new_identity as N'@new_identity', 'Return Value' = @return_value"
         
         if (spVariables != "" and spVariables != None and select2 != ""):
             spVariables = spVariables.replace("\"", "'")
@@ -284,7 +286,7 @@ try:
         resultData = []
 
         for i in cursor:
-            resultData.append(i[0].replace('spr', ''))
+            resultData.append(i[0])
 
         whereToStoreData = GetParams('whereToStoreData')
         SetVar(whereToStoreData, resultData)

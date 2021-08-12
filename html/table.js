@@ -1,4 +1,4 @@
-var tabledata = [{name: "Test", type: "int", output: true, value: 11}];
+var tabledata = [{name: "Test", type: "int", value: 11}];
 var table = new Tabulator("#example-table", {
     data: tabledata,           //load row data from array
     layout: "fitColumns",      //fit columns to width of table
@@ -21,8 +21,7 @@ var table = new Tabulator("#example-table", {
     },
     columns: [                 //define the table columns
         { title: "Name", field: "name", editor: "input" },
-        { title: "Type", field: "type", width: 95, editor: "select", editorParams: { values: ["int", "string", "date"] } },
-        { title: "Output", field: "output", width: 90, hozAlign: "center", formatter: "tickCross", sorter: "boolean", editor: true },
+        { title: "Type", field: "type", width: 95, editor: "select", editorParams: { values: ["int", "string", "boolean", "date"] } },
         { title: "Value", field: "value", editor: "input" }
     ],
 });

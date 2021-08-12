@@ -656,34 +656,6 @@
                         "css": "col-md-6"
                     },
                     {
-                        "type": "select",
-                        "title": {
-                          "es": "Selector de datos:",
-                          "en": "Input select:"
-                        },
-                        "options": [
-                          {
-                            "title": "--Seleccione--",
-                            "value": ""
-                          },
-                          {
-                            "title": "SELECT",
-                            "value": "select"
-                          },
-                          {
-                            "title": "INSERT/UPDATE/DELETE",
-                            "value": "not_select"
-                          }
-                        ],
-                        "help": {
-                            "es": "Help example",
-                            "en":  "Help example",
-                            "cn":  "Help example"
-                        },
-                        "id": "option_",
-                        "css": "col-md-6"
-                      },
-                    {
                         "type": "input",
                         "placeholder": {
                             "es": "variable",

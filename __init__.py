@@ -186,8 +186,6 @@ try:
 
     if (module == "getHtmlSps"):
 
-        print(mod_sqlserver_sessions[sesion])
-
         session = sesion
 
         query = "SELECT name FROM dbo.sysobjects WHERE TYPE = 'P' AND CATEGORY = 0"
@@ -208,50 +206,32 @@ try:
         
         session = GetParams('session')
         spIframe = GetParams("iframe")
-        tableWithVariables = eval(spIframe)["table"]
+        tableWithVariables = ""
+        try:
+            tableWithVariables = eval(spIframe)["table"]
+        except:
+            pass
         spToExecute = eval(spIframe)["spGot"]
-        option_ = GetParams("option_")
-        print(option_)
 
         spVariables = ""
-        spOutput = ""
-        lastOutput = ""
-        # print(tableWithVariables)
-        for value in tableWithVariables:
-            print("dentor del for")
-            print(value)
-            if "output" not in value:
-                value["output"] = False
-            if value["output"] == True:
-                print("if get")
-                # spVariables += "@" + value["name"] + " = " + value["name"] + " OUTPUT, "
-                lastOutput += "@" + value["name"] + " = " + value["name"] + " OUTPUT"
-                spOutput += "@" + value["name"]
-                print(spVariables)
-            else:
-                print("if not get true")
+
+        if tableWithVariables:
+            for value in tableWithVariables:
+
+                if value["type"] == "date":
+                    if not isinstance(value["value"], datetime.datetime):
+                        value["value"] = value.strftime('%Y-%m-%d %H:%M:%S')
                 spVariables += "@" + value["name"] + " = " + value["value"] + ", "
-                print(spVariables)
-        if spVariables != "":
-            spVariables = spVariables[:-2]
-        print("after spVariables")
-        print(spVariables)
-        if lastOutput:
-            spVariables += f", {lastOutput}"
+
+            if spVariables != "":
+                spVariables = spVariables[:-2]
         
         query = ""
-
-        select2 = ""
-        if not (option_ == "select"):
-            select2 = f"SELECT @new_identity as N'@new_identity', 'Return Value' = @return_value"
         
-        if (spVariables != "" and spVariables != None and select2 != ""):
-            spVariables = spVariables.replace("\"", "'")
-            query = f"DECLARE @return_value int, @new_identity int EXEC @return_value = dbo.sp{spToExecute} {spVariables} {select2}"
-        else:
-            query = f"DECLARE @return_value int, @new_identity int EXEC @return_value = dbo.sp{spToExecute} {spVariables}"
+        spVariables = spVariables.replace("\"", "'")
+        query = f"DECLARE @return_value int EXEC @return_value = dbo.{spToExecute} {spVariables} SELECT 'Return Value' = @return_value"
 
-        print(query)
+        # print(query)
 
         if not session:
             session = SESSION_DEFAULT

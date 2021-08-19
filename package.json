@@ -47,7 +47,7 @@
                             "en": "Session:"
                         },
                         "id": "session",
-                        "css": "col-md6"
+                        "css": "col-md-6"
                     },
                     {
                         "type": "input",

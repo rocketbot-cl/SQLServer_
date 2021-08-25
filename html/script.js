@@ -30,7 +30,7 @@ data = getDataFromRB({module_name:"SQLServer_", command_name:"getHtmlSps"})
 $('#spsGot').on('change', function (e) {
     // e.data.printer
     message.commands['spGot'] = $(this).val();
-    // message.commands['table'] = tabledata;
+    message.commands['table'] = tabledata;
     SendMessage();
 })
 

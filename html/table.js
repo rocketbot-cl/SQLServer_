@@ -16,6 +16,7 @@ var table = new Tabulator("#example-table", {
     ],
     dataChanged: function (data) {
         console.log(data)
+        message.commands['spGot'] = document.getElementById("spsGot").value;
         message.commands["table"] = data;
         SendMessage();
     },

@@ -217,14 +217,15 @@ try:
 
         if tableWithVariables:
             for value in tableWithVariables:
+                if not value["name"] == "":
 
-                if value["type"] == "date":
-                    if not isinstance(value["value"], datetime.datetime):
-                        try:
-                            value["value"] = value.strftime('%Y-%m-%d %H:%M:%S')
-                        except:
-                            pass
-                spVariables += "@" + value["name"] + " = " + value["value"] + ", "
+                    if value["type"] == "date":
+                        if not isinstance(value["value"], datetime.datetime):
+                            try:
+                                value["value"] = value.strftime('%Y-%m-%d %H:%M:%S')
+                            except:
+                                pass
+                    spVariables += "@" + value["name"] + " = " + value["value"] + ", "
 
             if spVariables != "":
                 spVariables = spVariables[:-2]

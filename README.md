@@ -12,7 +12,10 @@ Module for connection to SQL Server DB
   <li>Export Data SQLServer</li>  
   <li>Import Data SQLServer</li>  
   <li>Close connection</li>
-
+  <li>Create a SP with variables</li>
+  <li>Get SPs</li>
+  <li>SP to execute</li>
+  <li>Delete a SP</li>
 </ul>  
 
 ![alt text](https://raw.githubusercontent.com/rocketbot-cl/SQLServer/master/example/SQLServer.png)

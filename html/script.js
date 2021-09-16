@@ -23,7 +23,8 @@ data = getDataFromRB({module_name:"SQLServer_", command_name:"getHtmlSps"})
 .then(data => {
     data["spsGot"].push("---- Select Option ----")
     spsGot = data["spsGot"]
-    spsGot.reverse()
+    spsGot = spsGot.sort()
+    // spsGot.reverse()
     addOptions(spsGot)
 })
 

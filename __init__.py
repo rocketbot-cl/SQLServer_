@@ -31,14 +31,18 @@ import pandas as pd
 import urllib
 
 base_path = tmp_global_obj["basepath"]
+
 cur_path = base_path + 'modules' + os.sep + 'SQLServer_' + os.sep + 'libs' + os.sep
+
 cur_path_x64 = os.path.join(cur_path, 'Windows' + os.sep +  'x64' + os.sep)
 cur_path_x86 = os.path.join(cur_path, 'Windows' + os.sep +  'x86' + os.sep)
 
 if sys.maxsize > 2**32:
-    sys.path.append(cur_path_x64)
+    if cur_path_x64 not in sys.path:
+        sys.path.append(cur_path_x64)
 else:
-    sys.path.append(cur_path_x86)
+    if cur_path_x86 not in sys.path:
+        sys.path.append(cur_path_x86)
 
 from sqlalchemy import create_engine
 

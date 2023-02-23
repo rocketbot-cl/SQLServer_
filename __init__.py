@@ -26,7 +26,6 @@ Para instalar librerias se debe ingresar por terminal a la carpeta "libs"
 import os
 import sys
 import traceback
-import pyodbc
 import pandas as pd
 import urllib
 
@@ -45,6 +44,7 @@ else:
         sys.path.append(cur_path_x86)
 
 from sqlalchemy import create_engine
+import pyodbc
 
 # Globals declared here
 global mod_sqlserver_sessions

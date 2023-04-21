@@ -22,7 +22,7 @@ var table = new Tabulator("#example-table", {
     },
     columns: [                 //define the table columns
         { title: "Name", field: "name", editor: "input" },
-        { title: "Type", field: "type", width: 95, editor: "select", editorParams: { values: ["int", "string", "boolean", "date"] } },
+        { title: "Type", field: "type", width: 95, editor: "select", editorParams: { values: ["int", "float", "string", "boolean", "date", "datetime", "xml"] } },
         { title: "Value", field: "value", editor: "input" }
     ],
 });

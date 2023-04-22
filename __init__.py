@@ -27,6 +27,7 @@ import os
 import sys
 import traceback
 import pandas as pd
+import datetime
 import urllib
 
 base_path = tmp_global_obj["basepath"]
@@ -36,11 +37,9 @@ cur_path = base_path + 'modules' + os.sep + 'SQLServer_' + os.sep + 'libs' + os.
 cur_path_x64 = os.path.join(cur_path, 'Windows' + os.sep +  'x64' + os.sep)
 cur_path_x86 = os.path.join(cur_path, 'Windows' + os.sep +  'x86' + os.sep)
 
-if sys.maxsize > 2**32:
-    if cur_path_x64 not in sys.path:
+if sys.maxsize > 2**32 and cur_path_x64 not in sys.path:
         sys.path.append(cur_path_x64)
-else:
-    if cur_path_x86 not in sys.path:
+if sys.maxsize > 32 and cur_path_x86 not in sys.path:
         sys.path.append(cur_path_x86)
 
 from sqlalchemy import create_engine
@@ -121,25 +120,24 @@ try:
         conn = mod_sqlserver_sessions[session]["connection"]
         cursor.execute(query)
 
-        if query.lower().startswith('select') or query.lower().startswith('execute'):
+        if query.lower().startswith('select') or query.lower().startswith('execute') or query.lower().startswith('exec'):
             data = []
 
-            # print(query)
+            try:
+                columns = [column[0] for column in cursor.description]
 
-            columns = [column[0] for column in cursor.description]
-            # data.append(columns)
-
-            for row in cursor:
-                # print(row)
-                ob_ = {}
-                t = 0
-                for r in row:
-                    ob_[columns[t]] = str(r) + ""
-                    t = t + 1
-                data.append(ob_)
+                for row in cursor:
+                    ob_ = {}
+                    t = 0
+                    for r in row:
+                        ob_[columns[t]] = str(r) + ""
+                        t = t + 1
+                    data.append(ob_)
+            except TypeError:
+                # Added to avoid errors when the query executes an Insert SP, which it would no go through the elif...
+                data = cursor.rowcount, 'registros afectados' 
         elif query.lower().startswith('insert'):
             data = cursor.rowcount, 'registro insertado'
-            # data = True
 
         else:
             conn.commit()
@@ -245,7 +243,8 @@ try:
         
         spVariables = spVariables.replace("\"", "'")
         query = f"DECLARE @return_value int EXEC @return_value = dbo.{spToExecute} {spVariables} SELECT 'Return Value' = @return_value"
-
+        query = replaceByVar(obj_['vars']['robot'],query)
+        print("*****\n\n'", query, "\n\n************")
         # print(query)
 
         if not session:
@@ -287,7 +286,6 @@ try:
         SetVar(whereToStoreData, resultData)
 
     if module == 'ExportData':
-        from openpyxl import Workbook
         import xlwings as xw
 
         session = GetParams('session')
@@ -373,6 +371,6 @@ try:
 
 
 except Exception as e:
-    print(traceback.print_exc())
+    traceback.print_exc()
     PrintException()
     raise e

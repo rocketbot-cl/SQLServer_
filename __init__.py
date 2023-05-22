@@ -72,12 +72,12 @@ try:
         username = GetParams('user')
         password = GetParams('password')
         session = GetParams('session')
-
+        temp_server = server.lower()
         if not session:
             session = SESSION_DEFAULT
 
         driver = "{SQL Server}"
-        if server.endswith("database.windows.net"):
+        if temp_server.endswith("database.windows.net") or temp_server.endswith("sqlexpress"):
             driver = '{ODBC Driver 17 for SQL Server}'
 
         connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
@@ -89,11 +89,11 @@ try:
                                                                                                                 "UID=" + username + ";"
                                                                                                                                     "PWD=" + password + "; Trusted_Connection=yes")
         else:
+            connection_string += "Trusted_Connection=yes"
             params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
                                                                   "SERVER=" + server + ";"
                                                                                        "DATABASE=" + database + ";"
-                                                                                                                "Trusted_Connection=yes")
-
+                                                                                                                "Trusted_Connection=yes")  
         conn = pyodbc.connect(connection_string)
         cursor = conn.cursor()
 
@@ -120,7 +120,7 @@ try:
         conn = mod_sqlserver_sessions[session]["connection"]
         cursor.execute(query)
 
-        if query.lower().startswith('select') or query.lower().startswith('execute') or query.lower().startswith('exec'):
+        if (query.lower().startswith('select') and 'into' not in query.lower()) or query.lower().startswith('execute') or query.lower().startswith('exec'):
             data = []
 
             try:

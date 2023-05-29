@@ -59,6 +59,8 @@ Importar dados para um banco de dados SQLServer
 |Nome da folha||Folha1|
 |Nome da tabela a importar||Tabela|
 |Caminho do arquivo base||Caminho|
+|Tamanho do batch|As linhas serão gravadas em lotes desse tamanho por vez. Por padrão, todas as linhas serão gravadas de uma só vez.|2000|
+|Método|||
 
 ### Crie um SP com variáveis
   

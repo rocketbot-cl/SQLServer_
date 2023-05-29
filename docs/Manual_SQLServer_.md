@@ -59,6 +59,8 @@ Import data to a SQLServer database
 |Sheet name||Sheet1|
 |Name of the table to import||Table|
 |Base file path||Path|
+|Batch size|Rows will be written in batches of this size at a time. By default, all rows will be written at once.|2000|
+|Method|||
 
 ### Create a SP with variables
   

@@ -87,14 +87,14 @@ try:
                                                                   "SERVER=" + server + ";"
                                                                                        "DATABASE=" + database + ";"
                                                                                                                 "UID=" + username + ";"
-                                                                                                                                    "PWD=" + password + "; Trusted_Connection=yes")
+                                                                                                                                    "PWD=" + password + ";")
         else:
             connection_string += "Trusted_Connection=yes"
             params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
                                                                   "SERVER=" + server + ";"
                                                                                        "DATABASE=" + database + ";"
                                                                                                                 "Trusted_Connection=yes")  
-        conn = pyodbc.connect(connection_string)
+        conn = pyodbc.connect(connection_string, autocommit=True)
         cursor = conn.cursor()
 
         mod_sqlserver_sessions[session] = {
@@ -346,11 +346,21 @@ try:
         path_file = GetParams('path_file')
         hoja = GetParams('hoja')
         tabla = GetParams('tabla')
+        chunk = GetParams('chunk')
+        method = GetParams('method')
         session = GetParams('session')
 
         if not session:
             session = SESSION_DEFAULT
 
+        if chunk:
+            chunk = int(chunk)
+        else:
+            chunk = None
+        
+        if not method or method == "None":
+            method = None
+        
         engine = mod_sqlserver_sessions[session]["engine"]
 
         if hoja:
@@ -358,7 +368,7 @@ try:
         else:
             df = pd.read_excel(path_file, engine='openpyxl')
 
-        df.to_sql(tabla, con=engine, if_exists='append', index=False)
+        df.to_sql(tabla, con=engine, if_exists='append', index=False, chunksize=chunk, method=method)
 
     if module == "close":
         session = GetParams('session')

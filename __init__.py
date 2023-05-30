@@ -319,7 +319,7 @@ try:
                     registros.append(str(r).strip())
 
                 data.append(registros)
-
+            app = xw.App(visible=False)
             if path_file_base:
                 data.pop(0)
                 wb = xw.Book(path_file_base)
@@ -340,6 +340,7 @@ try:
                 sht.range('A1').value = data
                 wb.save(path_file)
                 wb.close()
+            app.kill()
 
     if module == 'importData':
 

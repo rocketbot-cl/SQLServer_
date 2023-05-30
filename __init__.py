@@ -89,7 +89,7 @@ try:
                                                                                                                 "UID=" + username + ";"
                                                                                                                                     "PWD=" + password + ";")
         else:
-            connection_string += "Trusted_Connection=yes"
+            connection_string += ";Trusted_Connection=yes"
             params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
                                                                   "SERVER=" + server + ";"
                                                                                        "DATABASE=" + database + ";"

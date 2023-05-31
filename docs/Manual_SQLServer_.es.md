@@ -59,6 +59,8 @@ Importar datos a una base de datos SQLServer
 |Nombre de hoja||Hoja1|
 |Nombre de la tabla a importar||Tabla|
 |Ruta del archivo base||Ruta|
+|Tamaño del lote|Las filas se escribirán en lotes de este tamaño a la vez. Por defecto, todas las filas se escribirán a la vez.|2000|
+|Metodo|||
 
 ### Crear un SP con variables
   

@@ -27,6 +27,7 @@ import os
 import sys
 import traceback
 import pandas as pd
+import datetime
 import urllib
 
 base_path = tmp_global_obj["basepath"]
@@ -36,11 +37,9 @@ cur_path = base_path + 'modules' + os.sep + 'SQLServer_' + os.sep + 'libs' + os.
 cur_path_x64 = os.path.join(cur_path, 'Windows' + os.sep +  'x64' + os.sep)
 cur_path_x86 = os.path.join(cur_path, 'Windows' + os.sep +  'x86' + os.sep)
 
-if sys.maxsize > 2**32:
-    if cur_path_x64 not in sys.path:
+if sys.maxsize > 2**32 and cur_path_x64 not in sys.path:
         sys.path.append(cur_path_x64)
-else:
-    if cur_path_x86 not in sys.path:
+if sys.maxsize > 32 and cur_path_x86 not in sys.path:
         sys.path.append(cur_path_x86)
 
 from sqlalchemy import create_engine
@@ -73,12 +72,12 @@ try:
         username = GetParams('user')
         password = GetParams('password')
         session = GetParams('session')
-
+        temp_server = server.lower()
         if not session:
             session = SESSION_DEFAULT
 
         driver = "{SQL Server}"
-        if server.endswith("database.windows.net"):
+        if temp_server.endswith("database.windows.net") or temp_server.endswith("sqlexpress"):
             driver = '{ODBC Driver 17 for SQL Server}'
 
         connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
@@ -88,14 +87,14 @@ try:
                                                                   "SERVER=" + server + ";"
                                                                                        "DATABASE=" + database + ";"
                                                                                                                 "UID=" + username + ";"
-                                                                                                                                    "PWD=" + password + "; Trusted_Connection=yes")
+                                                                                                                                    "PWD=" + password + ";")
         else:
+            connection_string += ";Trusted_Connection=yes"
             params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
                                                                   "SERVER=" + server + ";"
                                                                                        "DATABASE=" + database + ";"
-                                                                                                                "Trusted_Connection=yes")
-
-        conn = pyodbc.connect(connection_string)
+                                                                                                                "Trusted_Connection=yes")  
+        conn = pyodbc.connect(connection_string, autocommit=True)
         cursor = conn.cursor()
 
         mod_sqlserver_sessions[session] = {
@@ -121,25 +120,24 @@ try:
         conn = mod_sqlserver_sessions[session]["connection"]
         cursor.execute(query)
 
-        if query.lower().startswith('select') or query.lower().startswith('execute'):
+        if (query.lower().startswith('select') and 'into' not in query.lower()) or query.lower().startswith('execute') or query.lower().startswith('exec'):
             data = []
 
-            # print(query)
+            try:
+                columns = [column[0] for column in cursor.description]
 
-            columns = [column[0] for column in cursor.description]
-            # data.append(columns)
-
-            for row in cursor:
-                # print(row)
-                ob_ = {}
-                t = 0
-                for r in row:
-                    ob_[columns[t]] = str(r) + ""
-                    t = t + 1
-                data.append(ob_)
+                for row in cursor:
+                    ob_ = {}
+                    t = 0
+                    for r in row:
+                        ob_[columns[t]] = str(r) + ""
+                        t = t + 1
+                    data.append(ob_)
+            except TypeError:
+                # Added to avoid errors when the query executes an Insert SP, which it would no go through the elif...
+                data = cursor.rowcount, 'registros afectados' 
         elif query.lower().startswith('insert'):
             data = cursor.rowcount, 'registro insertado'
-            # data = True
 
         else:
             conn.commit()
@@ -245,7 +243,8 @@ try:
         
         spVariables = spVariables.replace("\"", "'")
         query = f"DECLARE @return_value int EXEC @return_value = dbo.{spToExecute} {spVariables} SELECT 'Return Value' = @return_value"
-
+        query = replaceByVar(obj_['vars']['robot'],query)
+        print("*****\n\n'", query, "\n\n************")
         # print(query)
 
         if not session:
@@ -287,7 +286,6 @@ try:
         SetVar(whereToStoreData, resultData)
 
     if module == 'ExportData':
-        from openpyxl import Workbook
         import xlwings as xw
 
         session = GetParams('session')
@@ -321,7 +319,7 @@ try:
                     registros.append(str(r).strip())
 
                 data.append(registros)
-
+            app = xw.App(visible=False)
             if path_file_base:
                 data.pop(0)
                 wb = xw.Book(path_file_base)
@@ -342,17 +340,28 @@ try:
                 sht.range('A1').value = data
                 wb.save(path_file)
                 wb.close()
+            app.kill()
 
     if module == 'importData':
 
         path_file = GetParams('path_file')
         hoja = GetParams('hoja')
         tabla = GetParams('tabla')
+        chunk = GetParams('chunk')
+        method = GetParams('method')
         session = GetParams('session')
 
         if not session:
             session = SESSION_DEFAULT
 
+        if chunk:
+            chunk = int(chunk)
+        else:
+            chunk = None
+        
+        if not method or method == "None":
+            method = None
+        
         engine = mod_sqlserver_sessions[session]["engine"]
 
         if hoja:
@@ -360,7 +369,7 @@ try:
         else:
             df = pd.read_excel(path_file, engine='openpyxl')
 
-        df.to_sql(tabla, con=engine, if_exists='append', index=False)
+        df.to_sql(tabla, con=engine, if_exists='append', index=False, chunksize=chunk, method=method)
 
     if module == "close":
         session = GetParams('session')
@@ -373,6 +382,6 @@ try:
 
 
 except Exception as e:
-    print(traceback.print_exc())
+    traceback.print_exc()
     PrintException()
     raise e

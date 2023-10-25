@@ -163,6 +163,7 @@ try:
         try:
             values = values.replace("('", '("').replace("')", '")').replace("', '", '", "').replace("','", '","')
             values = eval(values)
+            
             if not session:
                 session = SESSION_DEFAULT
 

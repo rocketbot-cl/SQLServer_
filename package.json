@@ -7,7 +7,7 @@
         "pr": "Conecte-se ao SQL Server e gerencie todos os seus bancos de dados, execute consultas personalizadas, importe e exporte dados, crie e execute procedimentos armazenados."
     },
     "disclaimer": "THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM “AS IS” WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.",
-    "version": "5.8.0",
+    "version": "5.8.1",
     "license": "MIT",
     "homepage": "http://rocketbot.com",
     "linux": false,
@@ -386,9 +386,9 @@
                     {
                         "type": "input",
                         "placeholder": {
-                            "es": "(15, 'Rocketbot')",
-                            "en": "(15, 'Rocketbot')",
-                            "pr": "(15, 'Rocketbot')"
+                            "es": "('15', 'Rocketbot')",
+                            "en": "('15', 'Rocketbot')",
+                            "pr": "('15', 'Rocketbot')"
                         },
                         "title": {
                             "es": "Valores:",
@@ -396,14 +396,14 @@
                             "pr": "Valores:"
                         },
                         "description": {
-                            "es": "Valores a insertar en la tabla, entre parentesis y separados por comas",
-                            "en": "Values to insert in the table, between parenthesis and separated by commas",
-                            "pr": "Valores a inserir na tabela, entre parênteses e separados por vírgulas"
+                            "es": "Valores a insertar en la tabla, cada valor debe estar entre comillas simples y separados por comas",
+                            "en": "Values to insert in the table, each value must be in single quotes and separated by commas",
+                            "pr": "Valores a inserir na tabela, cada valor deve estar entre aspas simples e separados por vírgulas"
                         },
                         "help": {
-                            "es": "Valores a insertar en la tabla, entre parentesis y separados por comas",
-                            "en": "Values to insert in the table, between parenthesis and separated by commas",
-                            "pr": "Valores a inserir na tabela, entre parênteses e separados por vírgulas"
+                            "es": "Valores a insertar en la tabla, cada valor debe estar entre comillas simples y separados por comas",
+                            "en": "Values to insert in the table, each value must be in single quotes and separated by commas",
+                            "pr": "Valores a inserir na tabela, cada valor deve estar entre aspas simples e separados por vírgulas"
                         },
                         "id": "values",
                         "css": "col-md-12",

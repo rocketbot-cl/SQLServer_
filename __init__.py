@@ -163,6 +163,7 @@ try:
         try:
             values = values.replace("('", '("').replace("')", '")').replace("', '", '", "').replace("','", '","')
             values = eval(values)
+
             if not session:
                 session = SESSION_DEFAULT
 
@@ -409,7 +410,7 @@ try:
         else:
             df = pd.read_excel(path_file, engine='openpyxl')
 
-        df.to_sql(tabla, con=engine, schema=schema, if_exists=method, chunksize=chunk, index=False)
+        df.to_sql(tabla, con=engine, schema=schema, if_exists='append', index=False, chunksize=chunk, method=method)
 
     if module == "close":
         session = GetParams('session')

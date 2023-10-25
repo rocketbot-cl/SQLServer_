@@ -1,7 +1,3 @@
-
-
-
-
 # SQLServer
   
 Conéctese a SQL Server y administre todas sus bases de datos, ejecute consultas personalizadas, importe y exporte datos, cree y ejecute procedimientos almacenados.  
@@ -23,42 +19,55 @@ Para instalar el módulo en Rocketbot Studio, se puede hacer de dos formas:
 Conectarse a la base de datos de SQLServer
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Sesión||Conn1|
-|Servidor||DESKTOP-T2319IB\SQLEXPRESS|
-|Nombre de BD||test|
-|Usuario de la BD||usertest|
-|Contraseña de BD||passtest|
+|Sesión|Nombre de la sesión|Conn1|
+|Servidor|Nombre del servidor|DESKTOP-T2319IB\SQLEXPRESS|
+|Driver|Nombre del driver|{ODBC Driver 17 for SQL Server}|
+|Nombre de BD|Nombre de la base de datos|test|
+|Usuario de la BD|Usuario de la base de datos|usertest|
+|Contraseña de BD|Contraseña del usuario de la base de datos|passtest|
+|Asignar a variable|Variable donde se almacenará el resultado de la conexión|Variable|
 
 ### Consulta SQLServer
   
 Hacer una consulta a una base de datos de SQLServer
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Consulta SQL||select * from test|
-|Sesión||Conn1|
-|Asignar a variable||Variable|
+|Consulta SQL|Consulta que se ejecutará en la base de datos|select * from test|
+|Sesión|Nombre de la sesión de conexión|Conn1|
+|Asignar a variable|Nombre de la variable a la que se asignará el resultado de la consulta|Variable|
+
+### Insertar SQLServer
+  
+Insertar datos en una base de datos SQLServer
+|Parámetros|Descripción|ejemplo|
+| --- | --- | --- |
+|Insert Query|Insert a ejecutar, sin incluir los valores|insert into test (id, name)|
+|Valores|Valores a insertar en la tabla, entre parentesis y separados por comas|(15, 'Rocketbot')|
+|Sesión|Nombre de la sesión a utilizar|Conn1|
+|Asignar a variable|Asignar el resultado a una variable|Variable|
 
 ### Exportar datos
   
 Exportar datos desde una base de datos de SQLServer
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Sesión||Conn1|
-|Consulta SQL||select * from test|
-|Ruta del archivo||Ruta|
-|Ruta del archivo base||Ruta|
-|Nombre de hoja||Hoja1|
-|Celda||Celda|
+|Sesión|Nombre de la sesión a utilizar|Conn1|
+|Consulta SQL|Consulta SQL a ejecutar|select * from test|
+|Ruta del archivo|Ruta del archivo a exportar|Ruta|
+|Ruta del archivo base|Archivo base. Es de utilidad en caso de que se quiera exportar con un formato o cabeceras específicas|Ruta|
+|Nombre de hoja|Nombre de la hoja donde se va a exportar|Hoja1|
+|Celda|Celda donde se va a exportar|Celda|
 
 ### Importar datos
   
 Importar datos a una base de datos SQLServer
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Sesión||Conn1|
-|Nombre de hoja||Hoja1|
-|Nombre de la tabla a importar||Tabla|
-|Ruta del archivo base||Ruta|
+|Sesión|Nombre de la sesión de conexión|Conn1|
+|Nombre de hoja|Nombre de la hoja de cálculo a importar|Hoja1|
+|Schema de la tabla|Esquema de la tabla SQL a importar. Por defecto, dbo.|dbo|
+|Nombre de la tabla a importar|Nombre de la tabla SQL donde se importarán los datos. Si no existe, se creará.|Tabla|
+|Ruta del archivo base|Ruta del archivo base a importar|Ruta|
 |Tamaño del lote|Las filas se escribirán en lotes de este tamaño a la vez. Por defecto, todas las filas se escribirán a la vez.|2000|
 |Metodo|||
 
@@ -67,35 +76,35 @@ Importar datos a una base de datos SQLServer
 Crea un Store Procedure con variables
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Sesión||Conn1|
-|Nombre del SP||TestDB_GetAll|
-|Variables del SP||@LastName nvarchar(50), @FirstName nvarchar(50)|
-|Query||SELECT * FROM dbo.Table WHERE LastName = @LastName AND FirstName = @FirstName|
+|Sesión|Nombre de la sesión|Conn1|
+|Nombre del SP|Nombre del SP|TestDB_GetAll|
+|Variables del SP|Variables del SP (separadas por coma)|@LastName nvarchar(50), @FirstName nvarchar(50)|
+|Query|Query del SP (lo contenido entre BEGIN y END)|SELECT * FROM dbo.Table WHERE LastName = @LastName AND FirstName = @FirstName|
 
 ### Obtener SPs
   
 Obtén los Store Procedures disponibles
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Sesión||Conn1|
-|Asignar a variable||Variable|
+|Sesión|Nombre de la sesión|Conn1|
+|Asignar a variable|Asignar el resultado a una variable|Variable|
 
 ### SP a ejecutar
   
 Para ver los SP debes conectarte a la DB sin cerrar la conexion hasta que hayas seleccionado el Store Procedure
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Seleccione el SP|||
-|Sesión||Conn1|
-|Asignar a variable||Variable|
+|Seleccione el SP|Para ver los SP debes conectarte a la DB sin cerrar la conexion hasta que hayas seleccionado el Store Procedure||
+|Sesión|Nombre de la sesión|Conn1|
+|Asignar a variable|Variable donde se guardará el resultado|Variable|
 
 ### Borrar un SP
   
 Eliminar el Store Procedure indicado
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Sesión||Conn1|
-|Nombre del SP||TestDB_GetAll|
+|Sesión|Nombre de la sesión|Conn1|
+|Nombre del SP|Nombre del Store Procedure|TestDB_GetAll|
 
 ### Cerrar conexión
   

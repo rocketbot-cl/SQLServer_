@@ -64,6 +64,33 @@ module = GetParams("module")
 """
     Obtengo variables
 """
+def connect_sql(driver, session):
+    connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
+    if username and password is not None:
+        connection_string += ';UID=' + username + ';PWD=' + password
+        params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
+                                                                "SERVER=" + server + ";"
+                                                                                    "DATABASE=" + database + ";"
+                                                                                                            "UID=" + username + ";"
+                                                                                                                                "PWD=" + password + ";")
+    else:
+        connection_string += ";Trusted_Connection=yes"
+        params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
+                                                                "SERVER=" + server + ";"
+                                                                                    "DATABASE=" + database + ";"
+                                                                                                            "Trusted_Connection=yes")  
+    conn = pyodbc.connect(connection_string, autocommit=True)
+    cursor = conn.cursor()
+
+    mod_sqlserver_sessions[session] = {
+        "connection": conn,
+        "cursor": cursor,
+        "engine": None,
+    }
+    sesion = session
+    engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
+    mod_sqlserver_sessions[session]["engine"] = engine
+
 try:
     if module == "connectionBD":
 
@@ -73,39 +100,14 @@ try:
         password = GetParams('password')
         session = GetParams('session')
         temp_server = server.lower()
+        
         if not session:
             session = SESSION_DEFAULT
-
-        driver = "{SQL Server}"
-        if temp_server.endswith("database.windows.net") or temp_server.endswith("sqlexpress"):
-            driver = '{ODBC Driver 17 for SQL Server}'
-
-        connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
-        if username and password is not None:
-            connection_string += ';UID=' + username + ';PWD=' + password
-            params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
-                                                                  "SERVER=" + server + ";"
-                                                                                       "DATABASE=" + database + ";"
-                                                                                                                "UID=" + username + ";"
-                                                                                                                                    "PWD=" + password + ";")
-        else:
-            connection_string += ";Trusted_Connection=yes"
-            params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
-                                                                  "SERVER=" + server + ";"
-                                                                                       "DATABASE=" + database + ";"
-                                                                                                                "Trusted_Connection=yes")  
-        conn = pyodbc.connect(connection_string, autocommit=True)
-        cursor = conn.cursor()
-
-        mod_sqlserver_sessions[session] = {
-            "connection": conn,
-            "cursor": cursor,
-            "engine": None,
-        }
-        sesion = session
-
-        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
-        mod_sqlserver_sessions[session]["engine"] = engine
+        
+        try:
+            connect_sql("{SQL Server}", session)
+        except:
+            connect_sql("{ODBC Driver 17 for SQL Server}", session)
 
     if module == 'QueryBD':
         session = GetParams('session')
@@ -234,7 +236,7 @@ try:
                                 value["value"] = value.strftime('%Y-%m-%d %H:%M:%S')
                             except:
                                 pass
-                    spVariables += "@" + value["name"] + " = " + value["value"] + ", "
+                    spVariables += "@" + value["name"] + " = " + value.get('value', ) + ", "
 
             if spVariables != "":
                 spVariables = spVariables[:-2]

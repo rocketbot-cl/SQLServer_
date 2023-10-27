@@ -1,7 +1,3 @@
-
-
-
-
 # SQLServer
   
 Connect to SQLServer and manage all your databases, execute custom queries, import and export data, create and execute stored procedures.  
@@ -24,25 +20,28 @@ Connect to SQLServer database
 2. Query SQLServer  
 Make a query to a SQLServer database
 
-3. Export data  
+3. Insert SQLServer  
+Insert data in a SQLServer database
+
+4. Export data  
 Export data from a SQLServer database
 
-4. Import data  
+5. Import data  
 Import data to a SQLServer database
 
-5. Create a SP with variables  
+6. Create a SP with variables  
 Create the Store Procedure with variables
 
-6. Get SPs  
+7. Get SPs  
 Get the available Store Procedures
 
-7. SP to execute  
+8. SP to execute  
 To see the SPs you must connect to the DB and do not close the conection until you selected the Store Procedure
 
-8. Delete a SP  
+9. Delete a SP  
 Delete the indicated Store Procedure
 
-9. Close connection  
+10. Close connection  
 Close the connection to SQLServer  
 
 

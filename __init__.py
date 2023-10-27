@@ -99,16 +99,28 @@ try:
         username = GetParams('user')
         password = GetParams('password')
         session = GetParams('session')
+        driver = GetParams('driver') if GetParams('driver') else '{SQL Server}'
+        var_ = GetParams('var')
         temp_server = server.lower()
         
         if not session:
-            session = SESSION_DEFAULT
+            session = SESSION_DEFAULT     
         
         try:
-            connect_sql("{SQL Server}", session)
-        except:
-            connect_sql("{ODBC Driver 17 for SQL Server}", session)
-
+            try:
+                connect_sql("{SQL Server}", session)
+            except Exception as e:
+                print("Error with SQL Server: ", e)
+                print("Trying ODBC Driver 17 for SQL Server")
+                connect_sql("{ODBC Driver 17 for SQL Server}", session)
+            if var_:
+                SetVar(var_, True)
+        except Exception as e:
+            if var_:
+                SetVar(var_, False)
+            PrintException()
+            raise e
+        
     if module == 'QueryBD':
         session = GetParams('session')
         query = GetParams('query')
@@ -146,6 +158,36 @@ try:
             data = cursor.rowcount, 'registros afectados'
         conn.commit()
         SetVar(var_, data)
+
+    if module == 'InsertDB':
+        session = GetParams('session')
+        query = GetParams('query')
+        values = GetParams('values')
+        var_ = GetParams('var')
+        try:
+            values = values.replace("('", '("').replace("')", '")').replace("', '", '", "').replace("','", '","')
+            values = eval(values)
+
+            if not session:
+                session = SESSION_DEFAULT
+
+
+            query_values = "?," * len(values)
+            query_values = query_values[:-1]
+
+            query = query + " VALUES (" + query_values + ")"
+
+            cursor = mod_sqlserver_sessions[session]["cursor"]
+            conn = mod_sqlserver_sessions[session]["connection"]
+            cursor.execute(query, values)
+
+            conn.commit()
+            data = cursor.rowcount, 'registros afectados'
+            SetVar(var_, data)
+        
+        except Exception as e:
+            SetVar(var_, False)
+            raise e
 
     # if (module == "createSp"):
 
@@ -348,6 +390,7 @@ try:
 
         path_file = GetParams('path_file')
         hoja = GetParams('hoja')
+        schema = GetParams('schema') if GetParams('schema') else 'dbo'
         tabla = GetParams('tabla')
         chunk = GetParams('chunk')
         method = GetParams('method')
@@ -371,7 +414,7 @@ try:
         else:
             df = pd.read_excel(path_file, engine='openpyxl')
 
-        df.to_sql(tabla, con=engine, if_exists='append', index=False, chunksize=chunk, method=method)
+        df.to_sql(tabla, con=engine, schema=schema, if_exists='append', index=False, chunksize=chunk, method=method)
 
     if module == "close":
         session = GetParams('session')

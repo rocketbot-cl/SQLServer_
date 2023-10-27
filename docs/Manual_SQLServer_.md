@@ -1,7 +1,3 @@
-
-
-
-
 # SQLServer
   
 Connect to SQLServer and manage all your databases, execute custom queries, import and export data, create and execute stored procedures.  
@@ -23,42 +19,55 @@ To install the module in Rocketbot Studio, it can be done in two ways:
 Connect to SQLServer database
 |Parameters|Description|example|
 | --- | --- | --- |
-|Session||Conn1|
-|Server||DESKTOP-T2319IB\SQLEXPRESS|
-|BD Name||test|
-|User BD||usertest|
-|Pass BD||passtest|
+|Session|Session name|Conn1|
+|Server|Server name|DESKTOP-T2319IB\SQLEXPRESS|
+|Driver|Driver name|{ODBC Driver 17 for SQL Server}|
+|BD Name|Database name|test|
+|User BD|Database user|usertest|
+|Pass BD|Database user password|passtest|
+|Assign to var|Variable where the result of the connection will be stored|Variable|
 
 ### Query SQLServer
   
 Make a query to a SQLServer database
 |Parameters|Description|example|
 | --- | --- | --- |
-|SQL Query||select * from test|
-|Session||Conn1|
-|Assign to var||Variable|
+|SQL Query|Query to execute in the database|select * from test|
+|Session|Connection session name|Conn1|
+|Assign to var|Name of the variable to which the result of the query will be assigned|Variable|
+
+### Insert SQLServer
+  
+Insert data in a SQLServer database
+|Parameters|Description|example|
+| --- | --- | --- |
+|Insert Query|Insert to execute, without including the values|insert into test (id, name)|
+|Values|Values to insert in the table, between parenthesis and separated by commas|(15, 'Rocketbot')|
+|Session|Name of the session to use|Conn1|
+|Assign to var|Assign the result to a variable|Variable|
 
 ### Export data
   
 Export data from a SQLServer database
 |Parameters|Description|example|
 | --- | --- | --- |
-|Session||Conn1|
-|SQL Query||select * from test|
-|File path||Path|
-|Base file path||Path|
-|Sheet name||Sheet1|
-|Cell||Cell|
+|Session|Name of the session to use|Conn1|
+|SQL Query|SQL query to execute|select * from test|
+|File path|File path to export|Path|
+|Base file path|Base file. It is useful in case you want to export with a specific format or headers|Path|
+|Sheet name|Name of the sheet where it will be exported|Sheet1|
+|Cell|Cell where it will be exported|Cell|
 
 ### Import data
   
 Import data to a SQLServer database
 |Parameters|Description|example|
 | --- | --- | --- |
-|Session||Conn1|
-|Sheet name||Sheet1|
-|Name of the table to import||Table|
-|Base file path||Path|
+|Session|Connection session name|Conn1|
+|Sheet name|Name of the spreadsheet to import|Sheet1|
+|Table schema|Schema of the SQL table to import. By default, dbo.|dbo|
+|Name of the table to import|Name of the SQL table where the data will be imported. If it does not exist, it will be created.|Table|
+|Base file path|Base file path to import|Path|
 |Batch size|Rows will be written in batches of this size at a time. By default, all rows will be written at once.|2000|
 |Method|||
 
@@ -67,35 +76,35 @@ Import data to a SQLServer database
 Create the Store Procedure with variables
 |Parameters|Description|example|
 | --- | --- | --- |
-|Session||Conn1|
-|SP's name||TestDB_GetAll|
-|SP's variables||@LastName nvarchar(50), @FirstName nvarchar(50)|
-|Query||SELECT * FROM dbo.Table WHERE LastName = @LastName AND FirstName = @FirstName|
+|Session|Session's name|Conn1|
+|SP's name|SP's name|TestDB_GetAll|
+|SP's variables|SP's variables (separated by comma)|@LastName nvarchar(50), @FirstName nvarchar(50)|
+|Query|SP's query (what it is between BEGIN and END)|SELECT * FROM dbo.Table WHERE LastName = @LastName AND FirstName = @FirstName|
 
 ### Get SPs
   
 Get the available Store Procedures
 |Parameters|Description|example|
 | --- | --- | --- |
-|Session||Conn1|
-|Assign to var||Variable|
+|Session|Session name|Conn1|
+|Assign to var|Assign the result to a variable|Variable|
 
 ### SP to execute
   
 To see the SPs you must connect to the DB and do not close the conection until you selected the Store Procedure
 |Parameters|Description|example|
 | --- | --- | --- |
-|Select the SP|||
-|Session||Conn1|
-|Assign to var||Variable|
+|Select the SP|To see the SPs you must connect to the DB and do not close the conection until you selected the Store Procedure||
+|Session|Session name|Conn1|
+|Assign to var|Var where the result will be stored|Variable|
 
 ### Delete a SP
   
 Delete the indicated Store Procedure
 |Parameters|Description|example|
 | --- | --- | --- |
-|Session||Conn1|
-|SP's name||TestDB_GetAll|
+|Session|Session name|Conn1|
+|SP's name|Store Procedure's name|TestDB_GetAll|
 
 ### Close connection
   

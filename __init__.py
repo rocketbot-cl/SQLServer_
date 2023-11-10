@@ -64,7 +64,7 @@ module = GetParams("module")
 """
     Obtengo variables
 """
-def connect_sql(driver, session):
+def connect_sql(driver, server, database, username=None, password=None, session=SESSION_DEFAULT):
     connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
     if username and password is not None:
         connection_string += ';UID=' + username + ';PWD=' + password
@@ -103,16 +103,13 @@ try:
         var_ = GetParams('var')
         temp_server = server.lower()
         
-        if not session:
-            session = SESSION_DEFAULT     
-        
         try:
             try:
-                connect_sql("{SQL Server}", session)
+                connect_sql("{SQL Server}", server, database, username, password, session)
             except Exception as e:
                 print("Error with SQL Server: ", e)
                 print("Trying ODBC Driver 17 for SQL Server")
-                connect_sql("{ODBC Driver 17 for SQL Server}", session)
+                connect_sql("{ODBC Driver 17 for SQL Server}", server, database, username, password, session)
             if var_:
                 SetVar(var_, True)
         except Exception as e:

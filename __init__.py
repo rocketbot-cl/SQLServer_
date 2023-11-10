@@ -28,7 +28,6 @@ import sys
 import traceback
 import pandas as pd
 import datetime
-import urllib
 
 base_path = tmp_global_obj["basepath"]
 
@@ -41,9 +40,6 @@ if sys.maxsize > 2**32 and cur_path_x64 not in sys.path:
         sys.path.append(cur_path_x64)
 if sys.maxsize > 32 and cur_path_x86 not in sys.path:
         sys.path.append(cur_path_x86)
-
-from sqlalchemy import create_engine
-import pyodbc
 
 # Globals declared here
 global mod_sqlserver_sessions
@@ -65,6 +61,10 @@ module = GetParams("module")
     Obtengo variables
 """
 def connect_sql(driver, server, database, username=None, password=None, session=SESSION_DEFAULT):
+    import urllib
+    from sqlalchemy import create_engine
+    import pyodbc
+    
     connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
     if username and password is not None:
         connection_string += ';UID=' + username + ';PWD=' + password
@@ -99,7 +99,7 @@ try:
         username = GetParams('user')
         password = GetParams('password')
         session = GetParams('session')
-        driver = GetParams('driver') if GetParams('driver') else '{SQL Server}'
+        # driver = GetParams('driver') if GetParams('driver') else '{SQL Server}'
         var_ = GetParams('var')
         temp_server = server.lower()
         

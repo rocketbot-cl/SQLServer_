@@ -163,10 +163,15 @@ try:
         var_ = GetParams('var')
         try:
             values = values.replace("('", '("').replace("')", '")').replace("', '", '", "').replace("','", '","')
-            values = eval(values)
+            values_ = eval(values)
 
             if not session:
                 session = SESSION_DEFAULT
+
+            if type(values_) == str:
+                values = (values_,)
+            else:
+                values = values_
 
 
             query_values = "?," * len(values)

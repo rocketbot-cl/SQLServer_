@@ -99,19 +99,16 @@ try:
         username = GetParams('user')
         password = GetParams('password')
         session = GetParams('session')
-        # driver = GetParams('driver') if GetParams('driver') else '{SQL Server}'
+        driver = GetParams('driver') or '{SQL Server}'
         var_ = GetParams('var')
         temp_server = server.lower()
         
         try:
-            try:
-                connect_sql("{SQL Server}", server, database, username, password, session)
-            except Exception as e:
-                print("Error with SQL Server: ", e)
-                print("Trying ODBC Driver 17 for SQL Server")
-                connect_sql("{ODBC Driver 17 for SQL Server}", server, database, username, password, session)
+            connect_sql(driver, server, database, username, password, session)
+
             if var_:
                 SetVar(var_, True)
+
         except Exception as e:
             if var_:
                 SetVar(var_, False)
@@ -348,7 +345,7 @@ try:
         cursor = mod_sqlserver_sessions[session]["cursor"]
         conn = mod_sqlserver_sessions[session]["connection"]
 
-        if query.lower().startswith('select'):
+        if query.lower().startswith('select', 'exec', 'execute'):
 
             cursor.execute(query)
 

@@ -52,7 +52,6 @@ try:
         mod_sqlserver_sessions = {SESSION_DEFAULT: {}}
 except NameError:
     mod_sqlserver_sessions = {SESSION_DEFAULT: {}}
-print("************\n\n", mod_sqlserver_sessions, "\n\n************")
 """
     Obtengo el modulo que fue invocado
 """
@@ -296,7 +295,6 @@ try:
         spVariables = spVariables.replace("\"", "'")
         query = f"DECLARE @return_value int EXEC @return_value = dbo.{spToExecute} {spVariables} SELECT 'Return Value' = @return_value"
         query = replaceByVar(obj_['vars']['robot'],query)
-        print("*****\n\n'", query, "\n\n************")
         # print(query)
 
         if not session:
@@ -354,8 +352,7 @@ try:
         cursor = mod_sqlserver_sessions[session]["cursor"]
         conn = mod_sqlserver_sessions[session]["connection"]
 
-        if query.lower().startswith('select', 'exec', 'execute'):
-
+        if query.lower().startswith('select') or query.lower().startswith('exec') or query.lower().startswith('execute'):
             cursor.execute(query)
 
             data = []

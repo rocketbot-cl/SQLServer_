@@ -52,10 +52,13 @@ try:
         mod_sqlserver_sessions = {SESSION_DEFAULT: {}}
 except NameError:
     mod_sqlserver_sessions = {SESSION_DEFAULT: {}}
+print("************\n\n", mod_sqlserver_sessions, "\n\n************")
 """
     Obtengo el modulo que fue invocado
 """
 module = GetParams("module")
+
+
 
 """
     Obtengo variables
@@ -102,9 +105,15 @@ try:
         driver = GetParams('driver') or '{SQL Server}'
         var_ = GetParams('var')
         temp_server = server.lower()
+
+        if not session:
+            session = SESSION_DEFAULT
         
         try:
-            connect_sql(driver, server, database, username, password, session)
+            try:
+                connect_sql(driver, server, database, username, password, session)
+            except Exception as e:
+                connect_sql("{ODBC Driver 17 for SQL Server}", temp_server, database, username, password, session)
 
             if var_:
                 SetVar(var_, True)
@@ -175,7 +184,7 @@ try:
             query_values = query_values[:-1]
 
             query = query + " VALUES (" + query_values + ")"
-
+            print(mod_sqlserver_sessions[session])
             cursor = mod_sqlserver_sessions[session]["cursor"]
             conn = mod_sqlserver_sessions[session]["connection"]
             cursor.execute(query, values)

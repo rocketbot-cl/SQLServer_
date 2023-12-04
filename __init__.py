@@ -28,7 +28,6 @@ import sys
 import traceback
 import pandas as pd
 import datetime
-import urllib
 
 base_path = tmp_global_obj["basepath"]
 
@@ -41,9 +40,6 @@ if sys.maxsize > 2**32 and cur_path_x64 not in sys.path:
         sys.path.append(cur_path_x64)
 if sys.maxsize > 32 and cur_path_x86 not in sys.path:
         sys.path.append(cur_path_x86)
-
-from sqlalchemy import create_engine
-import pyodbc
 
 # Globals declared here
 global mod_sqlserver_sessions
@@ -61,9 +57,42 @@ except NameError:
 """
 module = GetParams("module")
 
+
+
 """
     Obtengo variables
 """
+def connect_sql(driver, server, database, username=None, password=None, session=SESSION_DEFAULT):
+    import urllib
+    from sqlalchemy import create_engine
+    import pyodbc
+    
+    connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
+    if username and password is not None:
+        connection_string += ';UID=' + username + ';PWD=' + password
+        params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
+                                                                "SERVER=" + server + ";"
+                                                                                    "DATABASE=" + database + ";"
+                                                                                                            "UID=" + username + ";"
+                                                                                                                                "PWD=" + password + ";")
+    else:
+        connection_string += ";Trusted_Connection=yes"
+        params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
+                                                                "SERVER=" + server + ";"
+                                                                                    "DATABASE=" + database + ";"
+                                                                                                            "Trusted_Connection=yes")  
+    conn = pyodbc.connect(connection_string, autocommit=True)
+    cursor = conn.cursor()
+
+    mod_sqlserver_sessions[session] = {
+        "connection": conn,
+        "cursor": cursor,
+        "engine": None,
+    }
+    sesion = session
+    engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
+    mod_sqlserver_sessions[session]["engine"] = engine
+
 try:
     if module == "connectionBD":
 
@@ -72,51 +101,28 @@ try:
         username = GetParams('user')
         password = GetParams('password')
         session = GetParams('session')
-        driver = GetParams('driver') if GetParams('driver') else '{SQL Server}'
+        driver = GetParams('driver') or '{SQL Server}'
         var_ = GetParams('var')
         temp_server = server.lower()
+
         if not session:
             session = SESSION_DEFAULT
+        
         try:
-            
-            if temp_server.endswith("database.windows.net") or temp_server.endswith("sqlexpress"):
-                driver = '{ODBC Driver 17 for SQL Server}'
-
-            connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
-            if username and password is not None:
-                connection_string += ';UID=' + username + ';PWD=' + password
-                params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
-                                                                    "SERVER=" + server + ";"
-                                                                                        "DATABASE=" + database + ";"
-                                                                                                                    "UID=" + username + ";"
-                                                                                                                                        "PWD=" + password + ";")
-            else:
-                connection_string += ";Trusted_Connection=yes"
-                params = urllib.parse.quote_plus("DRIVER=" + driver + ";"
-                                                                    "SERVER=" + server + ";"
-                                                                                        "DATABASE=" + database + ";"
-                                                                                                                    "Trusted_Connection=yes")  
-            conn = pyodbc.connect(connection_string, autocommit=True)
-            cursor = conn.cursor()
-
-            mod_sqlserver_sessions[session] = {
-                "connection": conn,
-                "cursor": cursor,
-                "engine": None,
-            }
-            sesion = session
-
-            engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
-            mod_sqlserver_sessions[session]["engine"] = engine
+            try:
+                connect_sql(driver, server, database, username, password, session)
+            except Exception as e:
+                connect_sql("{ODBC Driver 17 for SQL Server}", temp_server, database, username, password, session)
 
             if var_:
                 SetVar(var_, True)
-        
+
         except Exception as e:
             if var_:
                 SetVar(var_, False)
             PrintException()
             raise e
+        
     if module == 'QueryBD':
         session = GetParams('session')
         query = GetParams('query')
@@ -162,17 +168,22 @@ try:
         var_ = GetParams('var')
         try:
             values = values.replace("('", '("').replace("')", '")').replace("', '", '", "').replace("','", '","')
-            values = eval(values)
+            values_ = eval(values)
 
             if not session:
                 session = SESSION_DEFAULT
+
+            if type(values_) == str:
+                values = (values_,)
+            else:
+                values = values_
 
 
             query_values = "?," * len(values)
             query_values = query_values[:-1]
 
             query = query + " VALUES (" + query_values + ")"
-
+            print(mod_sqlserver_sessions[session])
             cursor = mod_sqlserver_sessions[session]["cursor"]
             conn = mod_sqlserver_sessions[session]["connection"]
             cursor.execute(query, values)
@@ -274,7 +285,7 @@ try:
                                 value["value"] = value.strftime('%Y-%m-%d %H:%M:%S')
                             except:
                                 pass
-                    spVariables += "@" + value["name"] + " = " + value["value"] + ", "
+                    spVariables += "@" + value["name"] + " = " + value.get('value', ) + ", "
 
             if spVariables != "":
                 spVariables = spVariables[:-2]
@@ -284,7 +295,6 @@ try:
         spVariables = spVariables.replace("\"", "'")
         query = f"DECLARE @return_value int EXEC @return_value = dbo.{spToExecute} {spVariables} SELECT 'Return Value' = @return_value"
         query = replaceByVar(obj_['vars']['robot'],query)
-        print("*****\n\n'", query, "\n\n************")
         # print(query)
 
         if not session:
@@ -342,8 +352,7 @@ try:
         cursor = mod_sqlserver_sessions[session]["cursor"]
         conn = mod_sqlserver_sessions[session]["connection"]
 
-        if query.lower().startswith('select'):
-
+        if query.lower().startswith('select') or query.lower().startswith('exec') or query.lower().startswith('execute'):
             cursor.execute(query)
 
             data = []

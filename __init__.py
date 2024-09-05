@@ -44,7 +44,7 @@ if sys.maxsize > 32 and cur_path_x86 not in sys.path:
 # Globals declared here
 global mod_sqlserver_sessions
 # Default declared here
-SESSION_DEFAULT = "default"
+SESSION_DEFAULT = "default" 
 global sesion
 # Initialize settings for the module here
 try:

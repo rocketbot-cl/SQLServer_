@@ -66,6 +66,7 @@ def connect_sql(driver, server, database, username=None, password=None, session=
     import urllib
     from sqlalchemy import create_engine
     import pyodbc
+    global sesion
     
     connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
     if username and password is not None:
@@ -135,7 +136,8 @@ try:
         cursor = mod_sqlserver_sessions[session]["cursor"]
         conn = mod_sqlserver_sessions[session]["connection"]
         cursor.execute(query)
-
+        print(cursor.__dir__())
+        print(cursor.description)
         if (query.lower().startswith('select') and 'into' not in query.lower()) or query.lower().startswith('execute') or query.lower().startswith('exec'):
             data = []
 

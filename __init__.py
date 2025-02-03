@@ -126,7 +126,7 @@ try:
         
     if module == 'QueryBD':
         session = GetParams('session')
-        query = GetParams('query')
+        query = int(GetParams('query')) if GetParams('query').isdigit() else GetParams('query')
         var_ = GetParams('var')
         data = False
 

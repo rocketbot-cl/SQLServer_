@@ -1,114 +1,129 @@
+
+
+
+
 # SQLServer
   
-Connect to SQLServer and manage all your databases, execute custom queries, import and export data, create and execute stored procedures.  
+Conéctese a SQL Server y administre todas sus bases de datos, ejecute consultas personalizadas, importe y exporte datos, cree y ejecute procedimientos almacenados.  
 
 *Read this in other languages: [English](Manual_SQLServer_.md), [Português](Manual_SQLServer_.pr.md), [Español](Manual_SQLServer_.es.md)*
   
 ![banner](imgs/Banner_SQLServer_.jpg)
-## How to install this module
+## Como instalar este módulo
   
-To install the module in Rocketbot Studio, it can be done in two ways:
-1. Manual: __Download__ the .zip file and unzip it in the modules folder. The folder name must be the same as the module and inside it must have the following files and folders: \__init__.py, package.json, docs, example and libs. If you have the application open, refresh your browser to be able to use the new module.
-2. Automatic: When entering Rocketbot Studio on the right margin you will find the **Addons** section, select **Install Mods**, search for the desired module and press install.  
+Para instalar el módulo en Rocketbot Studio, se puede hacer de dos formas:
+1. Manual: __Descargar__ el archivo .zip y descomprimirlo en la carpeta modules. El nombre de la carpeta debe ser el mismo al del módulo y dentro debe tener los siguientes archivos y carpetas: \__init__.py, package.json, docs, example y libs. Si tiene abierta la aplicación, refresca el navegador para poder utilizar el nuevo modulo.
+2. Automática: Al ingresar a Rocketbot Studio sobre el margen derecho encontrara la sección de **Addons**, seleccionar **Install Mods**, buscar el modulo deseado y presionar install.  
 
 
-## Description of the commands
+## Descripción de los comandos
 
-### SQLServer Connection
+### Conexión a SQLServer
   
-Connect to SQLServer database
-|Parameters|Description|example|
+Conectarse a la base de datos de SQLServer
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Session|Session name|Conn1|
-|Server|Server name|DESKTOP-T2319IB\SQLEXPRESS|
-|Driver|Driver name|{ODBC Driver 17 for SQL Server}|
-|BD Name|Database name|test|
-|User BD|Database user|usertest|
-|Pass BD|Database user password|passtest|
-|Assign to var|Variable where the result of the connection will be stored|Variable|
+|Sesión|Nombre de la sesión|Conn1|
+|Servidor|Nombre del servidor|DESKTOP-T2319IB\SQLEXPRESS|
+|Driver|Nombre del driver|{ODBC Driver 17 for SQL Server}|
+|Nombre de BD|Nombre de la base de datos|test|
+|Usuario de la BD|Usuario de la base de datos|usertest|
+|Contraseña de BD|Contraseña del usuario de la base de datos|passtest|
+|Asignar a variable|Variable donde se almacenará el resultado de la conexión|Variable|
 
-### Query SQLServer
+### Consulta SQLServer
   
-Make a query to a SQLServer database
-|Parameters|Description|example|
+Hacer una consulta a una base de datos de SQLServer
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|SQL Query|Query to execute in the database|select * from test|
-|Session|Connection session name|Conn1|
-|Assign to var|Name of the variable to which the result of the query will be assigned|Variable|
+|Consulta SQL|Consulta que se ejecutará en la base de datos|select * from test|
+|Sesión|Nombre de la sesión de conexión|Conn1|
+|Asignar a variable|Nombre de la variable a la que se asignará el resultado de la consulta|Variable|
 
-### Insert SQLServer
+### Insertar SQLServer
   
-Insert data in a SQLServer database
-|Parameters|Description|example|
+Insertar datos en una base de datos SQLServer
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Insert Query|Insert to execute, without including the values|insert into test (id, name)|
-|Values|Values to insert in the table, between parenthesis and separated by commas|(15, 'Rocketbot')|
-|Session|Name of the session to use|Conn1|
-|Assign to var|Assign the result to a variable|Variable|
+|Insert Query|Insert a ejecutar, sin incluir los valores|insert into test (id, name)|
+|Valores|Valores a insertar en la tabla, cada valor debe estar entre comillas simples y separados por comas|('15', 'Rocketbot')|
+|Sesión|Nombre de la sesión a utilizar|Conn1|
+|Asignar a variable|Asignar el resultado a una variable|Variable|
 
-### Export data
+### Exportar datos
   
-Export data from a SQLServer database
-|Parameters|Description|example|
+Exportar datos desde una base de datos de SQLServer
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Session|Name of the session to use|Conn1|
-|SQL Query|SQL query to execute|select * from test|
-|File path|File path to export|Path|
-|Base file path|Base file. It is useful in case you want to export with a specific format or headers|Path|
-|Sheet name|Name of the sheet where it will be exported|Sheet1|
-|Cell|Cell where it will be exported|Cell|
+|Sesión|Nombre de la sesión a utilizar|Conn1|
+|Consulta SQL|Consulta SQL a ejecutar|select * from test|
+|Ruta del archivo|Ruta del archivo a exportar|Ruta|
+|Ruta del archivo base|Archivo base. Es de utilidad en caso de que se quiera exportar con un formato o cabeceras específicas|Ruta|
+|Nombre de hoja|Nombre de la hoja donde se va a exportar|Hoja1|
+|Celda|Celda donde se va a exportar|Celda|
 
-### Import data
+### Importar datos
   
-Import data to a SQLServer database
-|Parameters|Description|example|
+Importar datos a una base de datos SQLServer
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Session|Connection session name|Conn1|
-|Sheet name|Name of the spreadsheet to import|Sheet1|
-|Table schema|Schema of the SQL table to import. By default, dbo.|dbo|
-|Name of the table to import|Name of the SQL table where the data will be imported. If it does not exist, it will be created.|Table|
-|Base file path|Base file path to import|Path|
-|Batch size|Rows will be written in batches of this size at a time. By default, all rows will be written at once.|2000|
-|Method|||
+|Sesión|Nombre de la sesión de conexión|Conn1|
+|Nombre de hoja|Nombre de la hoja de cálculo a importar|Hoja1|
+|Schema de la tabla|Esquema de la tabla SQL a importar. Por defecto, dbo.|dbo|
+|Nombre de la tabla a importar|Nombre de la tabla SQL donde se importarán los datos. Si no existe, se creará.|Tabla|
+|Ruta del archivo base|Ruta del archivo base a importar|Ruta|
+|Tamaño del lote|Las filas se escribirán en lotes de este tamaño a la vez. Por defecto, todas las filas se escribirán a la vez.|2000|
+|Metodo|||
 
-### Create a SP with variables
+### Descarga Archivo
   
-Create the Store Procedure with variables
-|Parameters|Description|example|
+Descarga Archivos desde una base de datos de SQLServer
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Session|Session's name|Conn1|
-|SP's name|SP's name|TestDB_GetAll|
-|SP's variables|SP's variables (separated by comma)|@LastName nvarchar(50), @FirstName nvarchar(50)|
-|Query|SP's query (what it is between BEGIN and END)|SELECT * FROM dbo.Table WHERE LastName = @LastName AND FirstName = @FirstName|
+|Sesión|Nombre de la sesión a utilizar|Conn1|
+|Consulta SQL|Consulta SQL a ejecutar|EXEC up_Archivos_Select @IdArchivoTipo = 56, @IdPropietario = 1718029|
+|Ruta donde se guardara el archivo|Ruta donde se guardara el archivo|C:/Users/Downloads/|
+|Columna que almacena el nombre del archivo|Nombre de la columna que almacena el nombre del archivo|Documento|
+|Columna que almacena el contenido del archivo|Nombre de la columna que almacena el contenido del archivo|Archivo|
 
-### Get SPs
+### Crear un SP con variables
   
-Get the available Store Procedures
-|Parameters|Description|example|
+Crea un Store Procedure con variables
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Session|Session name|Conn1|
-|Assign to var|Assign the result to a variable|Variable|
+|Sesión|Nombre de la sesión|Conn1|
+|Nombre del SP|Nombre del SP|TestDB_GetAll|
+|Variables del SP|Variables del SP (separadas por coma)|@LastName nvarchar(50), @FirstName nvarchar(50)|
+|Query|Query del SP (lo contenido entre BEGIN y END)|SELECT * FROM dbo.Table WHERE LastName = @LastName AND FirstName = @FirstName|
 
-### SP to execute
+### Obtener SPs
   
-To see the SPs you must connect to the DB and do not close the conection until you selected the Store Procedure
-|Parameters|Description|example|
+Obtén los Store Procedures disponibles
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Select the SP|To see the SPs you must connect to the DB and do not close the conection until you selected the Store Procedure||
-|Session|Session name|Conn1|
-|Assign to var|Var where the result will be stored|Variable|
+|Sesión|Nombre de la sesión|Conn1|
+|Asignar a variable|Asignar el resultado a una variable|Variable|
 
-### Delete a SP
+### SP a ejecutar
   
-Delete the indicated Store Procedure
-|Parameters|Description|example|
+Para ver los SP debes conectarte a la DB sin cerrar la conexion hasta que hayas seleccionado el Store Procedure
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Session|Session name|Conn1|
-|SP's name|Store Procedure's name|TestDB_GetAll|
+|Seleccione el SP|Para ver los SP debes conectarte a la DB sin cerrar la conexion hasta que hayas seleccionado el Store Procedure||
+|Sesión|Nombre de la sesión|Conn1|
+|Asignar a variable|Variable donde se guardará el resultado|Variable|
 
-### Close connection
+### Borrar un SP
   
-Close the connection to SQLServer
-|Parameters|Description|example|
+Eliminar el Store Procedure indicado
+|Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Session||Conn1|
+|Sesión|Nombre de la sesión|Conn1|
+|Nombre del SP|Nombre del Store Procedure|TestDB_GetAll|
+
+### Cerrar conexión
+  
+Cierra la conexión con SQLServer
+|Parámetros|Descripción|ejemplo|
+| --- | --- | --- |
+|Sesión||Conn1|

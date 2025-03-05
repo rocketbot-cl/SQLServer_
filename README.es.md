@@ -1,3 +1,7 @@
+
+
+
+
 # SQLServer
   
 Conéctese a SQL Server y administre todas sus bases de datos, ejecute consultas personalizadas, importe y exporte datos, cree y ejecute procedimientos almacenados.  
@@ -29,19 +33,22 @@ Exportar datos desde una base de datos de SQLServer
 5. Importar datos  
 Importar datos a una base de datos SQLServer
 
-6. Crear un SP con variables  
+6. Descarga Archivo  
+Descarga Archivos desde una base de datos de SQLServer
+
+7. Crear un SP con variables  
 Crea un Store Procedure con variables
 
-7. Obtener SPs  
+8. Obtener SPs  
 Obtén los Store Procedures disponibles
 
-8. SP a ejecutar  
+9. SP a ejecutar  
 Para ver los SP debes conectarte a la DB sin cerrar la conexion hasta que hayas seleccionado el Store Procedure
 
-9. Borrar un SP  
+10. Borrar un SP  
 Eliminar el Store Procedure indicado
 
-10. Cerrar conexión  
+11. Cerrar conexión  
 Cierra la conexión con SQLServer  
 
 

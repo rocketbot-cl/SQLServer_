@@ -213,6 +213,45 @@ try:
     #     conn = mod_sqlserver_sessions[session]["connection"]
     #     conn.execute(query)
     #     conn.commit()
+    if module == 'DownloadFileDB':
+        session = GetParams('session')
+        ruta_guardado = GetParams('path_file')
+        columna_nombre_archivo = GetParams('columna_nombre')
+        columna_contenido_archivo = GetParams('columna_contenido')
+        consulta_sql = GetParams('query')
+        var_ = GetParams('var')
+
+        if not session:
+            session = SESSION_DEFAULT
+
+        try:
+            cursor = mod_sqlserver_sessions[session]["cursor"]
+            conn = mod_sqlserver_sessions[session]["connection"]
+
+            # Ejecutar la consulta SQL 
+            cursor.execute(consulta_sql)
+            fila = cursor.fetchone()
+
+            if fila:
+                # Acceder a las columnas usando los nombres proporcionados
+                nombre_archivo = getattr(fila, columna_nombre_archivo)
+                contenido_archivo = getattr(fila, columna_contenido_archivo)
+
+                ruta_completa = f"{ruta_guardado}{nombre_archivo}"
+
+                with open(ruta_completa, "wb") as archivo:
+                    archivo.write(contenido_archivo)
+                print(f"Archivo guardado en: {ruta_completa}")
+                SetVar(var_, True)
+            else:
+                print("No se encontró el archivo en la base de datos.")
+                SetVar(var_, False)
+
+        except Exception as e:
+            PrintException()
+            SetVar(var_, False)
+            raise e
+
 
     if (module == "createSp"):
 

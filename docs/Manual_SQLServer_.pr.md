@@ -1,3 +1,7 @@
+
+
+
+
 # SQLServer
   
 Conecte-se ao SQL Server e gerencie todos os seus bancos de dados, execute consultas personalizadas, importe e exporte dados, crie e execute procedimentos armazenados.  
@@ -42,7 +46,7 @@ Inserir dados em um banco de dados SQLServer
 |Parâmetros|Descrição|exemplo|
 | --- | --- | --- |
 |Insert Query|Insert to execute, without including the values|insert into test (id, name)|
-|Valores|Valores a inserir na tabela, entre parênteses e separados por vírgulas|(15, 'Rocketbot')|
+|Valores|Valores a inserir na tabela, cada valor deve estar entre aspas simples e separados por vírgulas|('15', 'Rocketbot')|
 |Sessão|Nome da sessão a ser usada|Conn1|
 |Assign to var|Atribuir o resultado a uma variável|Variable|
 
@@ -70,6 +74,17 @@ Importar dados para um banco de dados SQLServer
 |Caminho do arquivo base|Caminho do arquivo base para importar|Caminho|
 |Tamanho do batch|As linhas serão gravadas em lotes desse tamanho por vez. Por padrão, todas as linhas serão gravadas de uma só vez.|2000|
 |Método|||
+
+### Baixar Arquivo
+  
+Baixar Arquivo de um Banco de Dados SQL Server
+|Parâmetros|Descrição|exemplo|
+| --- | --- | --- |
+|Sessão|Nome da sessão a ser usada|Conn1|
+|Consulta SQL|Consulta SQL para executar|EXEC up_Archivos_Select @IdArchivoTipo = 56, @IdPropietario = 1718029|
+|Caminho onde o arquivo será salvo|Caminho onde o arquivo será salvo|C:/Users/Downloads/|
+|Coluna que armazena o nome do arquivo|Nome da coluna que armazena o nome do arquivo|Documento|
+|Coluna que armazena o conteúdo do arquivo|Nome da coluna que armazena o conteúdo do arquivo|Arquivo|
 
 ### Crie um SP com variáveis
   

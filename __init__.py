@@ -138,7 +138,11 @@ try:
         cursor.execute(query)
         print(cursor.__dir__())
         print(cursor.description)
-        if (query.lower().startswith('select') and 'into' not in query.lower()) or query.lower().startswith('execute') or query.lower().startswith('exec'):
+        # if (query.lower().startswith('select') and 'into' not in query.lower()) or query.lower().startswith('execute') or query.lower().startswith('exec'):
+        import re
+        if (query.lower().startswith('select') and not re.search(r'\binto\b', query.lower())) \
+        or query.lower().startswith('execute') or query.lower().startswith('exec'):
+        
             data = []
 
             try:

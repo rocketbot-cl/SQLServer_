@@ -40,7 +40,25 @@ if sys.maxsize > 2**32 and cur_path_x64 not in sys.path:
         sys.path.append(cur_path_x64)
 if sys.maxsize > 32 and cur_path_x86 not in sys.path:
         sys.path.append(cur_path_x86)
+global import_lib
+def import_lib(relative_path, name, class_name=None):
+    """
+    - relative_path: library path from the module's libs folder
+    - name: library name
+    - class_name: class name to be imported. As 'from name import class_name'
+    """
 
+    import importlib.util
+
+    cur_path = base_path + 'modules' + os.sep + \
+        'SQLServer_' + os.sep + 'libs' + os.sep
+    spec = importlib.util.spec_from_file_location(
+        name, cur_path + relative_path)
+    foo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(foo)
+    if class_name is not None:
+        return getattr(foo, class_name)
+    return foo
 # Globals declared here
 global mod_sqlserver_sessions
 # Default declared here
@@ -65,7 +83,17 @@ module = GetParams("module")
 def connect_sql(driver, server, database, username=None, password=None, session=SESSION_DEFAULT):
     import urllib
     from sqlalchemy import create_engine
-    import pyodbc
+    #import pyodbc
+    try:
+        
+        import pyodbc as p
+
+    except:
+        if sys.maxsize > 2**32:
+            p = import_lib(f"Windows{os.sep}x64{os.sep}pyodbc_3.13{os.sep}pyodbc.cp313-win_amd64.pyd", "pyodbc") # import pyodbc as p
+        #if sys.maxsize > 32:
+            #p = import_lib(f"Windows{os.sep}x86{os.sep}pyodbc_3.13{os.sep}pyodbc.py", "pyodbc") # import pyodbc as p
+   
     global sesion
     
     connection_string = 'DRIVER=' + driver + ';SERVER=' + server + ';PORT=1433;DATABASE=' + database
@@ -82,7 +110,7 @@ def connect_sql(driver, server, database, username=None, password=None, session=
                                                                 "SERVER=" + server + ";"
                                                                                     "DATABASE=" + database + ";"
                                                                                                             "Trusted_Connection=yes")  
-    conn = pyodbc.connect(connection_string, autocommit=True)
+    conn = p.connect(connection_string, autocommit=True)
     cursor = conn.cursor()
 
     mod_sqlserver_sessions[session] = {
@@ -156,6 +184,7 @@ try:
                         t = t + 1
                     data.append(ob_)
             except TypeError:
+                print("linea 159")
                 # Added to avoid errors when the query executes an Insert SP, which it would no go through the elif...
                 data = cursor.rowcount, 'registros afectados' 
         elif query.lower().startswith('insert'):
@@ -163,7 +192,9 @@ try:
 
         else:
             conn.commit()
+            print("linea 167")
             data = cursor.rowcount, 'registros afectados'
+            
         conn.commit()
         SetVar(var_, data)
 

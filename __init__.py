@@ -35,11 +35,29 @@ cur_path = base_path + 'modules' + os.sep + 'SQLServer_' + os.sep + 'libs' + os.
 
 cur_path_x64 = os.path.join(cur_path, 'Windows' + os.sep +  'x64' + os.sep)
 cur_path_x86 = os.path.join(cur_path, 'Windows' + os.sep +  'x86' + os.sep)
-
+global arch_folder
 if sys.maxsize > 2**32 and cur_path_x64 not in sys.path:
-        sys.path.append(cur_path_x64)
+    sys.path.append(cur_path_x64)
+    arch_folder = "x64"
 if sys.maxsize > 32 and cur_path_x86 not in sys.path:
-        sys.path.append(cur_path_x86)
+    sys.path.append(cur_path_x86)
+    arch_folder = "x86"
+
+try:
+    pandas_major = int(pd.__version__.split(".")[0])
+except Exception:
+    pandas_major = 2
+
+vendor_bucket = "pandas1" if pandas_major < 2 else "pandas2"
+sa_path = os.path.join(cur_path, "Windows", arch_folder, vendor_bucket)
+
+if os.path.isdir(sa_path) and sa_path not in sys.path:
+    sys.path.insert(0, sa_path)
+    # Forzar la versión vendorizada si ya se cargó desde la raíz
+    for m in list(sys.modules):
+        if m == "sqlalchemy" or m.startswith("sqlalchemy."):
+            sys.modules.pop(m, None)
+            
 global import_lib
 def import_lib(relative_path, name, class_name=None):
     """
@@ -342,6 +360,7 @@ try:
         
         session = GetParams('session')
         spIframe = GetParams("iframe")
+        schema = GetParams("schema")
         tableWithVariables = ""
         try:
             tableWithVariables = eval(spIframe)["table"]
@@ -350,18 +369,30 @@ try:
         spToExecute = eval(spIframe)["spGot"]
 
         spVariables = ""
+        if not schema:
+            schema = "dbo"  # Valor por defecto si no se especifica
 
         if tableWithVariables:
             for value in tableWithVariables:
                 if not value["name"] == "":
-
-                    if value["type"] == "date":
-                        if not isinstance(value["value"], datetime.datetime):
-                            try:
-                                value["value"] = value.strftime('%Y-%m-%d %H:%M:%S')
-                            except:
-                                pass
-                    spVariables += "@" + value["name"] + " = " + value.get('value', ) + ", "
+                    v = value.get("value")
+                    # if value["type"] == "date":
+                    #     if not isinstance(value["value"], datetime.datetime):
+                    #         try:
+                    #             value["value"] = value.strftime('%Y-%m-%d %H:%M:%S')
+                    #         except:
+                    #             pass
+                    if value.get("type") == "date":
+                        try:
+                            if isinstance(v, datetime.datetime) or isinstance(v, datetime.date):
+                                v = v.strftime("%Y-%m-%d")
+                        except:
+                            pass
+                        v_str = f"'{v}'"
+                    else:
+                        v_str = str(v)
+                    spVariables += "@" + value["name"] + " = " + v_str + ", "
+                    # spVariables += "@" + value["name"] + " = " + value.get('value', ) + ", "
 
             if spVariables != "":
                 spVariables = spVariables[:-2]
@@ -369,7 +400,7 @@ try:
         query = ""
         
         spVariables = spVariables.replace("\"", "'")
-        query = f"DECLARE @return_value int EXEC @return_value = dbo.{spToExecute} {spVariables} SELECT 'Return Value' = @return_value"
+        query = f"DECLARE @return_value int EXEC @return_value =  {schema}.{spToExecute} {spVariables} SELECT 'Return Value' = @return_value"
         query = replaceByVar(obj_['vars']['robot'],query)
         # print(query)
 

@@ -108,8 +108,8 @@ def connect_sql(driver, server, database, username=None, password=None, session=
 
     except:
         if sys.maxsize > 2**32:
-            p = import_lib(f"Windows{os.sep}x64{os.sep}pyodbc_3.13{os.sep}pyodbc.cp313-win_amd64.pyd", "pyodbc") # import pyodbc as p
-        #if sys.maxsize > 32:
+            p = import_lib(f"Windows{os.sep}x64{os.sep}pyodbc_3.13{os.sep}pyodbc.cp313-win_amd64.pyd", "pyodbc") # import pyodbc as p  
+            #if sys.maxsize > 32:
             #p = import_lib(f"Windows{os.sep}x86{os.sep}pyodbc_3.13{os.sep}pyodbc.py", "pyodbc") # import pyodbc as p
    
     global sesion

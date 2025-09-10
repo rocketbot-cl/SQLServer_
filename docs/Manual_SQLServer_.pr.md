@@ -111,6 +111,7 @@ Para ver os SPs, você deve se conectar ao DB sem fechar a conexão até selecio
 | --- | --- | --- |
 |Selecione o SP|Para ver os SPs, você deve se conectar ao DB sem fechar a conexão até selecionar o Store Procedure||
 |Sessão|Nome da sessão|Conn1|
+|Sessão|Nome da sessão|dbo|
 |Assign to var|Var where the result will be stored|Variable|
 
 ### Excluir um SP

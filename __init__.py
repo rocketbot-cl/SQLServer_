@@ -182,12 +182,11 @@ try:
         cursor = mod_sqlserver_sessions[session]["cursor"]
         conn = mod_sqlserver_sessions[session]["connection"]
         cursor.execute(query)
-        print(cursor.__dir__())
-        print(cursor.description)
-        # if (query.lower().startswith('select') and 'into' not in query.lower()) or query.lower().startswith('execute') or query.lower().startswith('exec'):
         import re
-        if (query.lower().startswith('select') and not re.search(r'\binto\b', query.lower())) \
-        or query.lower().startswith('execute') or query.lower().startswith('exec'):
+        qstr = str(query).lstrip().lower()
+        # Tratar consultas que empiezan con WITH (CTE) como SELECT
+        if ((qstr.startswith('select') or qstr.startswith('with')) and not re.search(r'\binto\b', qstr)) \
+        or qstr.startswith('execute') or qstr.startswith('exec'):
         
             data = []
 
@@ -202,7 +201,7 @@ try:
                         t = t + 1
                     data.append(ob_)
             except TypeError:
-                print("linea 159")
+                #print("linea 159")
                 # Added to avoid errors when the query executes an Insert SP, which it would no go through the elif...
                 data = cursor.rowcount, 'registros afectados' 
         elif query.lower().startswith('insert'):

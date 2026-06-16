@@ -140,6 +140,46 @@ def connect_sql(driver, server, database, username=None, password=None, session=
     engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
     mod_sqlserver_sessions[session]["engine"] = engine
 
+
+global _import_dataframe_with_cursor, escape_sql_identifier, normalize_sql_value
+def _import_dataframe_with_cursor(conn, cursor, df, schema, tabla, chunk):
+    import pandas as pandas_local
+
+    def escape_sql_identifier(identifier):
+        return "[{}]".format(str(identifier).replace("]", "]]"))
+
+    def normalize_sql_value(value):
+        if pandas_local.isna(value):
+            return None
+        if isinstance(value, pandas_local.Timestamp):
+            return value.to_pydatetime()
+        return value
+
+    if df.empty:
+        return
+
+    columns = list(df.columns)
+    column_sql = ", ".join(escape_sql_identifier(col) for col in columns)
+    placeholders = ", ".join(["?"] * len(columns))
+    table_sql = "{}.{}".format(escape_sql_identifier(schema), escape_sql_identifier(tabla))
+    insert_sql = "INSERT INTO {} ({}) VALUES ({})".format(table_sql, column_sql, placeholders)
+
+    if hasattr(cursor, "fast_executemany"):
+        cursor.fast_executemany = True
+
+    if not chunk or chunk <= 0:
+        chunk = len(df)
+
+    total_rows = len(df)
+    for start in range(0, total_rows, chunk):
+        end = min(start + chunk, total_rows)
+        chunk_rows = [
+            tuple(normalize_sql_value(v) for v in row)
+            for row in df.iloc[start:end].itertuples(index=False, name=None)
+        ]
+        cursor.executemany(insert_sql, chunk_rows)
+        conn.commit()
+
 try:
     if module == "connectionBD":
 
@@ -519,13 +559,22 @@ try:
             method = None
         
         engine = mod_sqlserver_sessions[session]["engine"]
+        conn = mod_sqlserver_sessions[session]["connection"]
+        cursor = mod_sqlserver_sessions[session]["cursor"]
 
         if hoja:
             df = pd.read_excel(path_file, sheet_name=hoja, engine='openpyxl')
         else:
             df = pd.read_excel(path_file, engine='openpyxl')
 
-        df.to_sql(tabla, con=engine, schema=schema, if_exists='append', index=False, chunksize=chunk, method=method)
+        try:
+            df.to_sql(tabla, con=engine, schema=schema, if_exists='append', index=False, chunksize=chunk, method=method)
+        except AttributeError as e:
+            # Compatibilidad con combinaciones pandas/sqlalchemy donde Engine no se detecta como connectable.
+            if "cursor" in str(e).lower() and "engine" in str(e).lower():
+                _import_dataframe_with_cursor(conn, cursor, df, schema, tabla, chunk)
+            else:
+                raise
 
     if module == "close":
         session = GetParams('session')

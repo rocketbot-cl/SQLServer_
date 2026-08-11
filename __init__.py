@@ -36,10 +36,10 @@ cur_path = base_path + 'modules' + os.sep + 'SQLServer_' + os.sep + 'libs' + os.
 cur_path_x64 = os.path.join(cur_path, 'Windows' + os.sep +  'x64' + os.sep)
 cur_path_x86 = os.path.join(cur_path, 'Windows' + os.sep +  'x86' + os.sep)
 global arch_folder
-if sys.maxsize > 2**32 and cur_path_x64 not in sys.path:
+if sys.maxsize >= 2**32 and cur_path_x64 not in sys.path:
     sys.path.append(cur_path_x64)
     arch_folder = "x64"
-if sys.maxsize > 32 and cur_path_x86 not in sys.path:
+elif sys.maxsize < 2**32 and cur_path_x86 not in sys.path:
     sys.path.append(cur_path_x86)
     arch_folder = "x86"
 
